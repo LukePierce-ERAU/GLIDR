@@ -250,13 +250,12 @@ end
 function [t,y,L_D] = sadglide(ic,DESIGN,ii)
 
 
-dh = 100;
+dh = 1000;
 ind = round(ic(2)/dh);
 y = zeros(ind,4);
 
 for jj  = 1:ind
     [T, a, P, rho, nu, mu] = atmosisa(y(jj,2), 'extended', true);
-
     if jj == 1
         V = sqrt(ic(3)^2+ic(4)^2);
     else
@@ -265,12 +264,8 @@ for jj  = 1:ind
     W = DESIGN.m.*DESIGN.g;
     gamma = -4.*pi/180;
 
-    Re = rho.*DESIGN.c.*V./mu;
-
 
 cL = 2.*W.*cos(gamma)./(rho.*V^2.*DESIGN.S(ii));
-[cD0,cDi] = drag(Re,cL,DESIGN,ii);
-cD = cD0 + cDi;
 
 L_D(1,jj) = cL/cD;
 dx(1,jj) = dh.*L_D(1,jj);
