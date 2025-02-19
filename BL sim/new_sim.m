@@ -16,7 +16,7 @@ close all
 %% GEOMETRY ASSUMPTION SECTIONS AND GLOBAL VARIABLES ++++++++++++++++++++++
 
 
-config = 2; % Change to run sims on each config
+config = 1; % Change to run sims on each config
 % 1 ==== Blended Wing Body
 % 2 ==== Rogallo Wing
 % 3 ==== Bullet Bill
@@ -213,7 +213,7 @@ function dydt = funfree(t,y,DESIGN,ii)
 
 cL = 0;
 [cD0,cDi] = drag(Re,cL,DESIGN,ii);
-cD = cD0 + cDi; % Add flap thing drag
+cD = cD0 + cDi;
 
 drag_force = 0.5 * cD * DESIGN.S(ii) * rho * y(2).^2;
 
@@ -224,7 +224,7 @@ end
 
 function [position,isterminal,direction] = y1_free(t,y)
 
-position = y(2) + 200; % The value that we want to be zero (speed)
+position = y(2) + 200; % The value that we want to be zero (altitude)
     isterminal = 1;  % Halt integration 
     direction = 0;   % The zero can be approached from either direction
 end
@@ -402,7 +402,7 @@ function [t,y,L_D,ic,te] = sadglide(ic,DESIGN,ii)
 
     C_L0 = 0.3;              % Lift coefficient at zero angle of attack (dimensionless)
              % Parasitic drag coefficient (dimensionless)
-    k = 1/(DESIGN.e(ii)*pi*DESIGN.AR(ii));                % Induced drag factor (dimensionless)
+    k = 1/(DESIGN.e*pi*DESIGN.AR(ii));                % Induced drag factor (dimensionless)
 
     g = 9.81;                % Gravitational acceleration (m/s²)
     
