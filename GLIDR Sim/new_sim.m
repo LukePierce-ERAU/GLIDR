@@ -213,7 +213,7 @@ function dydt = funfree(t,y,DESIGN,ii)
 
 cL = 0;
 [cD0,cDi] = drag(Re,cL,DESIGN,ii);
-cD = cD0 + cDi;
+cD = cD0 + cDi; % Add flap thing drag
 
 drag_force = 0.5 * cD * DESIGN.S(ii) * rho * y(2).^2;
 
@@ -224,7 +224,7 @@ end
 
 function [position,isterminal,direction] = y1_free(t,y)
 
-position = y(2) + 200; % The value that we want to be zero (altitude)
+position = y(2) + 200; % The value that we want to be zero (speed)
     isterminal = 1;  % Halt integration 
     direction = 0;   % The zero can be approached from either direction
 end
