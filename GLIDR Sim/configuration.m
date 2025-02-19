@@ -1,3 +1,4 @@
+
 function [DESIGN] = configuration(config)
 % Configuration selection and defining geometry for each
 %   Configurations are chosen and for all stages of flight are organized
