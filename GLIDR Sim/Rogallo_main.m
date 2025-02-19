@@ -589,11 +589,12 @@ while alt > 1700
      W = DESIGN.m*DESIGN.g;
      
     cL = W / (0.5 * rho * V^2 * DESIGN.S(ii));
+   
 
     % Drag Buildup for changing Re and flight condition
     Re = rho.*DESIGN.c.*V./mu;
     [cD0,cDi] = drag(Re,cL,DESIGN,ii);
-    cD = (cD0 + cDi)DESIGN.S_ratio;
+    cD = (cD0 + cDi);
 
     L_Dtemp = cL/cD;
     gamma = atan(cD/cL);
@@ -603,9 +604,9 @@ while alt > 1700
     else
         y(iter,3) = V*cos(gamma);
         y(iter,4) = V*sin(gamma);
-        y(iter,1) = y(iter-1,1) + y(iter,3)* 1;
-        y(iter,2) = y(iter-1,2) - y(iter,4)* 1;
-        t(iter,1) = iter;
+        y(iter,1) = y(iter-1,1) + y(iter,3) * 5;
+        y(iter,2) = y(iter-1,2) - y(iter,4) * 5;
+        t(iter,1) = iter * 5;
         L_D(iter,1) = L_Dtemp;
     end
     alt = y(iter,2);
