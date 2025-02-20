@@ -28,7 +28,7 @@ if config == 1
     DESIGN.m = 8;
     DESIGN.c = 1.2; % Set number
     DESIGN.b = 0.45;
-    DESIGN.S = (linspace(1,2,10))'; % Very crude guess based on prelim CAD work
+    DESIGN.S = (linspace(1,2,3))'; % Very crude guess based on prelim CAD work
     DESIGN.AR = DESIGN.b.^2./DESIGN.S; % Hard to guess right now
     DESIGN.e = 0.35; % Low Estimate after looking at sources VHANGE EQ HERE
     DESIGN.cLalpha = 180/pi.* 0.01;
@@ -42,7 +42,7 @@ elseif config == 2
     DESIGN.m = 10;
     DESIGN.c = 0.5; % Set number
     DESIGN.b = 2;
-    DESIGN.S = (linspace(0.5,2,10))'; % Very crude guess based on prelim CAD work
+    DESIGN.S = (linspace(0.5,2,3))'; % Very crude guess based on prelim CAD work
     DESIGN.AR = DESIGN.b.^2./DESIGN.S; % Hard to guess right now
     DESIGN.e = 4.61.*(1-.045.*DESIGN.AR.^.68).*(cos(pi/6))-3.1; % Low Estimate after looking at sources VHANGE EQ HERE
     DESIGN.cLalpha = 180/pi.* linspace(0.1,0.07,10);
