@@ -177,9 +177,9 @@ end
 
 figure
 hold on
-plot(master.t1/60,master.alt1/1000,'m','LineWidth',2)
+plot(master.t1/60,master.alt1/1000,'b','LineWidth',2)
 plot(master.t2/60,master.alt2/1000,'k','LineWidth',2)
-plot(master.t3/60,master.alt3/1000,'b','LineWidth',2)
+plot(master.t3/60,master.alt3/1000,'m','LineWidth',2)
 xline(90,'r')
 grid on
 title('Altitude over Time', 'FontSize',18)
@@ -188,9 +188,9 @@ ylabel('Altitude [km]', 'FontSize',16)
 
 figure
 hold on
-plot(master.x1/1000,master.alt1/1000,'m','LineWidth',2)
+plot(master.x1/1000,master.alt1/1000,'b','LineWidth',2)
 plot(master.x2/1000,master.alt2/1000,'k','LineWidth',2)
-plot(master.x3/1000,master.alt3/1000,'b','LineWidth',2)
+plot(master.x3/1000,master.alt3/1000,'m','LineWidth',2)
 xline(45,'r')
 grid on
 title('2D Flight path', 'FontSize',18)
@@ -199,9 +199,9 @@ ylabel('Altitude [km]', 'FontSize',16)
 
 figure
 hold on
-plot(master.speed1,master.alt1/1000,'m','LineWidth',2)
+plot(master.speed1,master.alt1/1000,'b','LineWidth',2)
 plot(master.speed2,master.alt2/1000,'k','LineWidth',2)
-plot(master.speed3,master.alt3/1000,'b','LineWidth',2)
+plot(master.speed3,master.alt3/1000,'m','LineWidth',2)
 grid on
 title('Altitude over Speed', 'FontSize',18)
 xlabel('Speed [m/s]', 'FontSize',16)
