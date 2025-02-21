@@ -1,4 +1,3 @@
-
 function [DESIGN] = configuration(config)
 % Configuration selection and defining geometry for each
 %   Configurations are chosen and for all stages of flight are organized
@@ -28,7 +27,7 @@ if config == 1
     DESIGN.m = 8;
     DESIGN.c = 1.2; % Set number
     DESIGN.b = 0.45;
-    DESIGN.S = (linspace(1,2,3))'; % Very crude guess based on prelim CAD work
+    DESIGN.S = (linspace(1,2,10))'; % Very crude guess based on prelim CAD work
     DESIGN.AR = DESIGN.b.^2./DESIGN.S; % Hard to guess right now
     DESIGN.e = 0.35; % Low Estimate after looking at sources VHANGE EQ HERE
     DESIGN.cLalpha = 180/pi.* 0.01;
@@ -67,10 +66,24 @@ elseif config == 2
 
 elseif config == 3
     % Geometry assumptions for Bullet Bill
+    DESIGN.m = 5;      % Mass (kg)
+    DESIGN.S = linspace(1,3,3);
+    DESIGN.c = 1.2;      % Chord Length (m)
+    DESIGN.b = 0.45;     % Wingspan (m)
+    DESIGN.AR = DESIGN.b.^2 ./ DESIGN.S; % Aspect Ratio
+    DESIGN.e = 0.4;     % Oswald Efficiency Factor
+    DESIGN.cLalpha = (180/pi * 0.01);
+    % DESIGN.cLalpha = 180/pi * 0.01; % Lift Curve Slope
+    DESIGN.S_ratio = 2.5;
+    %DESIGN.M_arm = 0.1;   % Center of Lift Moment Arm from CG (m)
+    %DESIGN.V_des = -200;  % Desired Pull-Up Trim Speed (m/s)
+    % DESIGN = [1, 2, 3]; % All assumptions make an array
+end
+     DESIGN.g = 9.81;
+ % DESIGN.cLalpha = 5.7; % Lift curve slope
 
-    DESIGN = [1, 2, 3]; % All assumptions make an array
 end
 
-DESIGN.g = 9.81;
+     % DESIGN.g = 9.81;
 
-end
+     % end

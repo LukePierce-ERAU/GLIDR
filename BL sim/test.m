@@ -59,7 +59,7 @@ glide_initp(1,ii) = te;
 % [t,y,te,ye,ei] = ode15s(chat, [0 100], [ye(1,1);ye(1,2);abs(ye(1,3)); 0], options); % need to impliment theta and Q
 
 ic = [ye(1,1);ye(1,2);abs(ye(1,3)); 0];
-[t,y,L_D,ic,te] = sadglide(ic,DESIGN,ii);
+[t,y,L_D,ic,teglide] = sadglide(ic,DESIGN,ii);
 
 %velo = cell(size(t,1),2);
 velo(:,1) = sqrt(y(:,3).^2+y(:,4).^2);
@@ -73,7 +73,7 @@ clear velo
 
 velo(:,1) = sqrt(y(:,3).^2+y(:,4).^2);
 steadyvar(:,:,ii) = {t;y(:,1);y(:,2);velo(:,1)};
-steady_inip(1,ii) = te+glide_initp(1,ii)+pull_inip(1,ii); 
+steady_inip(1,ii) = teglide + glide_initp(1,ii) + pull_inip(1,ii); 
 
 clear velo
 
@@ -92,125 +92,6 @@ end
 
 
 %% Cool Plots
-
-
-% free = struct();
-% pull = struct();
-% glide = struct();
-% steady = struct();
-% master = struct();
-% 
-% 
-% for free_ind = 1:size(freevar,3)
-%     free_mat_ind = cell2mat(freevar(:,:,free_ind));
-%     t = free_mat_ind(1:size(free_mat_ind,1)/3);
-%     x = zeros(size(free_mat_ind,1)/3,1);
-%     alt = free_mat_ind(size(free_mat_ind,1)/3+1:size(free_mat_ind,1)/3*2);
-%     speed = free_mat_ind(size(free_mat_ind,1)/3*2+1:end);
-%     t_name = ['t', num2str(free_ind)];
-%     x_name = ['x', num2str(free_ind)];
-%     alt_name = ['alt', num2str(free_ind)];
-%     speed_name = ['speed', num2str(free_ind)];
-%     free.(t_name) = t;
-%     free.(x_name) = x;
-%     free.(alt_name) = alt;
-%     free.(speed_name) = speed;
-% end
-% 
-% for pull_ind = 1:size(pullvar,3)
-%     pull_mat_ind = cell2mat(pullvar(:,:,pull_ind));
-%     t = free_out(1,1,pull_ind) + pull_mat_ind(1:size(pull_mat_ind,1)/5);
-%     x = pull_mat_ind(size(pull_mat_ind,1)/5+1:size(pull_mat_ind,1)/5*2);
-%     alt = pull_mat_ind(size(pull_mat_ind,1)/5*2+1:size(pull_mat_ind,1)/5*3);
-%     speed = pull_mat_ind(size(pull_mat_ind,1)/5*3+1:size(pull_mat_ind,1)/5*4);
-%     t_name = ['t', num2str(pull_ind)];
-%     x_name = ['x', num2str(pull_ind)];
-%     alt_name = ['alt', num2str(pull_ind)];
-%     speed_name = ['speed', num2str(pull_ind)];
-%     pull.(t_name) = t;
-%     pull.(x_name) = x;
-%     pull.(alt_name) = alt;
-%     pull.(speed_name) = speed;
-% 
-% end
-% 
-% for glide_ind = 1:size(glidevar,3)
-%     glide_mat_ind = cell2mat(glidevar(:,:,glide_ind));
-%     t = free_out(1,1,glide_ind) + pull_out(1,1,glide_ind) + glide_mat_ind(1:size(glide_mat_ind,1)/4);
-%     x = glide_mat_ind(size(glide_mat_ind,1)/4+1:size(glide_mat_ind,1)/4*2);
-%     alt = glide_mat_ind(size(glide_mat_ind,1)/4*2+1:size(glide_mat_ind,1)/4*3);
-%     speed = glide_mat_ind(size(glide_mat_ind,1)/4*3+1:end);
-%     t_name = ['t', num2str(glide_ind)];
-%     x_name = ['x', num2str(glide_ind)];
-%     alt_name = ['alt', num2str(glide_ind)];
-%     speed_name = ['speed', num2str(glide_ind)];
-%     glide.(t_name) = t;
-%     glide.(x_name) = x;
-%     glide.(alt_name) = alt;
-%     glide.(speed_name) = speed;
-% 
-% end
-% 
-% for steady_ind = 1:size(steadyvar,3)
-%     steady_mat_ind = cell2mat(steadyvar(:,:,steady_ind));
-%     t = steady_inip(1,steady_ind) + steady_mat_ind(1:size(steady_mat_ind,1)/4);
-%     x = steady_mat_ind(size(steady_mat_ind,1)/4+1:size(steady_mat_ind,1)/4*2);
-%     alt = steady_mat_ind(size(steady_mat_ind,1)/4*2+1:size(steady_mat_ind,1)/4*3);
-%     speed = steady_mat_ind(size(steady_mat_ind,1)/4*3+1:end);
-%     t_name = ['t', num2str(steady_ind)];
-%     x_name = ['x', num2str(steady_ind)];
-%     alt_name = ['alt', num2str(steady_ind)];
-%     speed_name = ['speed', num2str(steady_ind)];
-%     steady.(t_name) = t;
-%     steady.(x_name) = x;
-%     steady.(alt_name) = alt;
-%     steady.(speed_name) = speed;
-% end
-% 
-% % Creating one line for each config
-% 
-% for jj = 1:1:ii
-% master.(['t', num2str(jj)]) = vertcat(free.(['t',num2str(jj)]),pull.(['t',num2str(jj)]),glide.(['t',num2str(jj)]),steady.(['t',num2str(jj)]));
-% master.(['x', num2str(jj)]) = vertcat(free.(['x',num2str(jj)]),pull.(['x',num2str(jj)]),glide.(['x',num2str(jj)]),steady.(['x',num2str(jj)]));
-% master.(['alt', num2str(jj)]) = vertcat(free.(['alt',num2str(jj)]),pull.(['alt',num2str(jj)]),glide.(['alt',num2str(jj)]),steady.(['alt',num2str(jj)]));
-% master.(['speed', num2str(jj)]) = vertcat(free.(['speed',num2str(jj)]),pull.(['speed',num2str(jj)]),glide.(['speed',num2str(jj)]),steady.(['speed',num2str(jj)]));
-% end
-% 
-% figure
-% hold on
-% plot(master.t1/60,master.alt1/1000,'g')
-% plot(master.t2/60,master.alt2/1000,'k')
-% plot(master.t3/60,master.alt3/1000,'b')
-% xline(90,'r')
-% grid on
-% title('Altitude over Time')
-% xlabel('Time [mins]')
-% ylabel('Altitude [km]')
-% 
-% figure
-% hold on
-% plot(master.x1/1000,master.alt1/1000,'g')
-% plot(master.x2/1000,master.alt2/1000,'k')
-% plot(master.x3/1000,master.alt3/1000,'b')
-% xline(45,'r')
-% grid on
-% title('2D Flight path')
-% xlabel('Distance Travelled [km]')
-% ylabel('Altitude [km]')
-% 
-% figure
-% hold on
-% plot(master.speed1,master.alt1/1000,'g')
-% plot(master.speed2,master.alt2/1000,'k')
-% plot(master.speed3,master.alt3/1000,'b')
-% grid on
-% title('Altitude over Speed')
-% xlabel('Speed [m/s]')
-% ylabel('Altitude [km]')
-
-
-
-
 
 free = struct();
 pull = struct();
@@ -327,102 +208,6 @@ xlabel('Speed [m/s]')
 ylabel('Altitude [km]')
 
 
-%  i = 1;
-% for free_ind = 1:size(freevar,3)
-%     figure(i);
-%     free_mat_ind = cell2mat(freevar(:,:,free_ind));
-%     t = free_mat_ind(1:size(free_mat_ind,1)/3);
-%     alt = free_mat_ind(size(free_mat_ind,1)/3+1:size(free_mat_ind,1)/3*2);
-%     speed = free_mat_ind(size(free_mat_ind,1)/3*2+1:end);
-%     hold on;
-%     plot(t,alt);
-%     title("alt vs time")
-%     legend();
-%     i = i + 1;
-%     figure(i);
-%     hold on;
-%     plot(speed,alt);
-%     title("alt vs speed")
-%     legend();
-%     i = i - 1;
-% end
-% for pull_ind = 1:size(pullvar,3)
-%     figure(i);
-%     pull_mat_ind = cell2mat(pullvar(:,:,pull_ind));
-%     t = pull_mat_ind(1:size(pull_mat_ind,1)/5);
-%     x = pull_mat_ind(size(pull_mat_ind,1)/5+1:size(pull_mat_ind,1)/5*2);
-%     alt = pull_mat_ind(size(pull_mat_ind,1)/5*2+1:size(pull_mat_ind,1)/5*3);
-%     speed = pull_mat_ind(size(pull_mat_ind,1)/5*3+1:size(pull_mat_ind,1)/5*4);
-%     hold on;
-%     plot(t+pull_inip(pull_ind),alt);
-%     title("alt vs time")
-%     legend();
-%     i = i + 1;
-%     figure(i);
-%     hold on;
-%     plot(speed,alt);
-%     title("alt vs speed")
-%     legend();
-%     i = i + 1;
-%     figure(i);
-%     hold on;
-%     plot(x,alt);
-%     title("alt vs x-dist")
-%     legend();
-%     i = i - 2;
-% end
-% for glide_ind = 1:size(glidevar,3)
-%     figure(i);
-%     glide_mat_ind = cell2mat(glidevar(:,:,glide_ind));
-%     t = glide_mat_ind(1:size(glide_mat_ind,1)/4);
-%     x = glide_mat_ind(size(glide_mat_ind,1)/4+1:size(glide_mat_ind,1)/4*2);
-%     alt = glide_mat_ind(size(glide_mat_ind,1)/4*2+1:size(glide_mat_ind,1)/4*3);
-%     speed = glide_mat_ind(size(glide_mat_ind,1)/4*3+1:end);
-%     hold on;
-%     plot(t+glide_initp(glide_ind)+pull_inip(glide_ind),alt);
-%     title("alt vs time")
-%     legend();
-%     i = i + 1;
-%     figure(i);
-%     hold on;
-%     plot(speed,alt);
-%     title("alt vs speed")
-%     legend();
-%     i = i + 1;
-%     figure(i);
-%     hold on;
-%     plot(x,alt);
-%     title("alt vs x-dist")
-%     legend();
-%     i = i - 2;
-% end
-% for steady_ind = 1:size(steadyvar,3)
-%     figure(i);
-%     steady_mat_ind = cell2mat(steadyvar(:,:,steady_ind));
-%     t = steady_mat_ind(1:size(steady_mat_ind,1)/4);
-%     x = steady_mat_ind(size(steady_mat_ind,1)/4+1:size(steady_mat_ind,1)/4*2);
-%     alt = steady_mat_ind(size(steady_mat_ind,1)/4*2+1:size(steady_mat_ind,1)/4*3);
-%     speed = steady_mat_ind(size(steady_mat_ind,1)/4*3+1:end);
-%     hold on;
-%     plot(t+glide_initp(steady_ind)+pull_inip(steady_ind)+steady_inip(steady_ind),alt);
-%     title("alt vs time")
-%     legend();
-%     i = i + 1;
-%     figure(i);
-%     hold on;
-%     plot(speed,alt);
-%     title("alt vs speed")
-%     legend();
-%     i = i + 1;
-%     figure(i);
-%     hold on;
-%     plot(x,alt);
-%     title("alt vs x-dist")
-%     legend();
-%     i = i - 2;
-% end
-
-
 
 
 % Plotting tools
@@ -484,7 +269,7 @@ function dydt = funpull(t,y,DESIGN,ii)
     if t == pull_init
         cL = 0;
     else
-        cL = 0.5;
+        cL = -0.5;
     end
    
     
@@ -492,7 +277,7 @@ function dydt = funpull(t,y,DESIGN,ii)
 cD = cD0 + cDi;
     
 drag_force = 0.5 .* rho .* y(3)^2 .* DESIGN.S(ii) .* cD;
-lift_force = 0.5 .* rho .* y(3)^2 .* DESIGN.S(ii) .* -cL;
+lift_force = 0.5 .* rho .* y(3)^2 .* DESIGN.S(ii) .* cL;
    
     
 % Q assuming aircraft is point mass. Can be updated with inertia. Replace m
@@ -500,7 +285,7 @@ lift_force = 0.5 .* rho .* y(3)^2 .* DESIGN.S(ii) .* -cL;
 
 % Assumes that aero center is on same waterline as cg.++++++++++++++++++++
 
-Q = ( .5*rho*(y(3)^2)*-cL*(DESIGN.S(ii)/DESIGN.m) - DESIGN.g*cos(y(4)) )/y(3);
+Q = ( .5*rho*(y(3)^2)*cL*(DESIGN.S(ii)/DESIGN.m) - DESIGN.g*cos(y(4)) )/y(3);
     
  % Calculate the drag force and acceleration due to gravity
      % Drag force (assumes velocity is y(2))
@@ -704,7 +489,7 @@ function [t,y,L_D,ic,te] = sadglide(ic,DESIGN,ii)
         % alpha = gamma;
         
         % Velocity slip into x and y components for distance
-        V_Cx = abs(V_current.*cos(gamma));
+        V_Cx = V_current.*cos(gamma);
         V_Cy = V_current.*sin(gamma);
         V_Cy = 0;
         % Calculate distance traveled and altitude lost during this step
