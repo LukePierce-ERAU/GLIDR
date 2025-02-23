@@ -59,20 +59,20 @@ glide_initp(1,ii) = te;
 % [t,y,te,ye,ei] = ode15s(chat, [0 100], [ye(1,1);ye(1,2);abs(ye(1,3)); 0], options); % need to impliment theta and Q
 
 ic = [ye(1,1);ye(1,2);abs(ye(1,3)); 0];
-[t,y,L_D,ic,teglide] = sadglide(ic,DESIGN,ii);
+[t,y,L_D,ic,teglide,cL] = sadglide(ic,DESIGN,ii);
 
 %velo = cell(size(t,1),2);
 velo(:,1) = sqrt(y(:,3).^2+y(:,4).^2);
 %t = zeros(size(velo,1),1);
-glidevar(:,:,ii) = {t;y(:,1);y(:,2);velo(:,1)};
+glidevar(:,:,ii) = {t;y(:,1);y(:,2);velo(:,1);cL(:,1)};
 
 clear velo
 % Stead state cruise
 
-[t,y,L_D] = funsteady(ic,DESIGN,ii);
+[t,y,L_D,cL] = funsteady(ic,DESIGN,ii);
 
 velo(:,1) = sqrt(y(:,3).^2+y(:,4).^2);
-steadyvar(:,:,ii) = {t;y(:,1);y(:,2);velo(:,1)};
+steadyvar(:,:,ii) = {t;y(:,1);y(:,2);velo(:,1);cL};
 steady_inip(1,ii) = teglide + glide_initp(1,ii) + pull_inip(1,ii); 
 
 clear velo
@@ -139,14 +139,19 @@ for glide_ind = 1:size(glidevar,3)
     x = glide_mat_ind(size(glide_mat_ind,1)/4+1:size(glide_mat_ind,1)/4*2);
     alt = glide_mat_ind(size(glide_mat_ind,1)/4*2+1:size(glide_mat_ind,1)/4*3);
     speed = glide_mat_ind(size(glide_mat_ind,1)/4*3+1:end);
+    % Add pulls for L/D ratio and cL
     t_name = ['t', num2str(glide_ind)];
     x_name = ['x', num2str(glide_ind)];
     alt_name = ['alt', num2str(glide_ind)];
     speed_name = ['speed', num2str(glide_ind)];
+    L_D_name = ['LoveD', num2str(glide_ind)];
+    cL_name = ['cL', num2str(glide_ind)];
     glide.(t_name) = t;
     glide.(x_name) = x;
     glide.(alt_name) = alt;
     glide.(speed_name) = speed;
+    % glide.(L_D_name) = L_D;
+    % glide.(cL_name) = cL;
 
 end
 
@@ -156,23 +161,30 @@ for steady_ind = 1:size(steadyvar,3)
     x = steady_mat_ind(size(steady_mat_ind,1)/4+1:size(steady_mat_ind,1)/4*2);
     alt = steady_mat_ind(size(steady_mat_ind,1)/4*2+1:size(steady_mat_ind,1)/4*3);
     speed = steady_mat_ind(size(steady_mat_ind,1)/4*3+1:end);
+    % Add pulls for L/D ratio and cL
     t_name = ['t', num2str(steady_ind)];
     x_name = ['x', num2str(steady_ind)];
     alt_name = ['alt', num2str(steady_ind)];
     speed_name = ['speed', num2str(steady_ind)];
+    L_D_name = ['LoveD', num2str(glide_ind)];
+    cL_name = ['cL', num2str(glide_ind)];
     steady.(t_name) = t;
     steady.(x_name) = x;
     steady.(alt_name) = alt;
     steady.(speed_name) = speed;
+    % glide.(L_D_name) = L_D;
+    % glide.(cL_name) = cL;
 end
 
 % Creating one line for each config
 
 for jj = 1:1:ii
-master.(['t', num2str(jj)]) = vertcat(free.(['t',num2str(jj)]),pull.(['t',num2str(jj)]),glide.(['t',num2str(jj)]),steady.(['t',num2str(jj)]));
-master.(['x', num2str(jj)]) = vertcat(free.(['x',num2str(jj)]),pull.(['x',num2str(jj)]),glide.(['x',num2str(jj)]),steady.(['x',num2str(jj)]));
-master.(['alt', num2str(jj)]) = vertcat(free.(['alt',num2str(jj)]),pull.(['alt',num2str(jj)]),glide.(['alt',num2str(jj)]),steady.(['alt',num2str(jj)]));
+master.(['t', num2str(jj)])     = vertcat(free.(['t',num2str(jj)]),pull.(['t',num2str(jj)]),glide.(['t',num2str(jj)]),steady.(['t',num2str(jj)]));
+master.(['x', num2str(jj)])     = vertcat(free.(['x',num2str(jj)]),pull.(['x',num2str(jj)]),glide.(['x',num2str(jj)]),steady.(['x',num2str(jj)]));
+master.(['alt', num2str(jj)])   = vertcat(free.(['alt',num2str(jj)]),pull.(['alt',num2str(jj)]),glide.(['alt',num2str(jj)]),steady.(['alt',num2str(jj)]));
 master.(['speed', num2str(jj)]) = vertcat(free.(['speed',num2str(jj)]),pull.(['speed',num2str(jj)]),glide.(['speed',num2str(jj)]),steady.(['speed',num2str(jj)]));
+% master.(['LoveD', num2str(jj)]) = vertcat(glide.(['LoveD',num2str(jj)]),steady.(['LoveD',num2str(jj)]));
+% master.(['cL', num2str(jj)])    = vertcat(glide.(['cL',num2str(jj)]),steady.(['cL',num2str(jj)]));
 end
 
 figure
@@ -416,7 +428,7 @@ end
 %     end
 % end
 
-function [t,y,L_D,ic,te] = sadglide(ic,DESIGN,ii)
+function [t,y,L_D,ic,te,C_L] = sadglide(ic,DESIGN,ii)
 % Aircraft parameters
 
     C_L0 = 0.3;              % Lift coefficient at zero angle of attack (dimensionless)
@@ -464,7 +476,7 @@ function [t,y,L_D,ic,te] = sadglide(ic,DESIGN,ii)
         
         % Calculate CL using current angle of attack
         % C_L = C_L0 + DESIGN.cLalpha(ii) * alpha
-        C_L = W / (0.5 * rho * V_current^2 * DESIGN.S(ii));
+        C_L(iter,1) = W / (0.5 * rho * V_current^2 * DESIGN.S(ii));
         
         % Ensure CL stays within reasonable limits (0.5 < CL < 2.5)
         if C_L > CL_max
@@ -584,7 +596,7 @@ function [position,isterminal,direction] = y1_glide(t,y)
     direction = 0;   % The zero can be approached from either direction
 end
 
-function [t,y,L_D] = funsteady(ic,DESIGN,ii)
+function [t,y,L_D,cL] = funsteady(ic,DESIGN,ii)
 % Glide has constant q to keep aero forces
 alt = ic(2);
 
@@ -607,7 +619,7 @@ while alt > 1700
      V = sqrt(2*q_con/(rho));
      W = DESIGN.m*DESIGN.g;
      
-    cL = W / (0.5 * rho * V^2 * DESIGN.S(ii));
+    cL(iter,1) = W / (0.5 * rho * V^2 * DESIGN.S(ii));
    
 
     % Drag Buildup for changing Re and flight condition
