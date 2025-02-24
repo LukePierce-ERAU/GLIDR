@@ -234,8 +234,8 @@ ylabel('Range [km]', 'FontSize', 16)
 figure
 hold on
 plot(master.cL1,vertcat(glide.alt1,steady.alt1)/1000,'b','LineWidth',2)
-plot(master.cL2,vertcat(glide.alt2,steady.alt2)/1000,'k','LineWidth',2)
-plot(master.cL3,vertcat(glide.alt3,steady.alt3)/1000,'m','LineWidth',2)
+plot(master.cL6,vertcat(glide.alt6,steady.alt6)/1000,'k','LineWidth',2)
+plot(master.cL10,vertcat(glide.alt10,steady.alt10)/1000,'m','LineWidth',2)
 grid on
 title('Altitude over Target c_{L}', 'FontSize',18)
 xlabel('c_{L}', 'FontSize',16)
@@ -247,8 +247,8 @@ ylabel('Altitude [km]', 'FontSize',16)
 figure
 hold on
 plot(master.t1/60,master.alt1/1000,'b','LineWidth',2)
-plot(master.t2/60,master.alt2/1000,'k','LineWidth',2)
-plot(master.t3/60,master.alt3/1000,'m','LineWidth',2)
+plot(master.t6/60,master.alt6/1000,'k','LineWidth',2)
+plot(master.t10/60,master.alt10/1000,'m','LineWidth',2)
 xline(90,'r')
 grid on
 title('Altitude over Time', 'FontSize',18)
@@ -259,8 +259,8 @@ ylabel('Altitude [km]', 'FontSize',16)
 figure
 hold on
 plot(master.x1/1000,master.alt1/1000,'b','LineWidth',2)
-plot(master.x2/1000,master.alt2/1000,'k','LineWidth',2)
-plot(master.x3/1000,master.alt3/1000,'m','LineWidth',2)
+plot(master.x6/1000,master.alt6/1000,'k','LineWidth',2)
+plot(master.x10/1000,master.alt10/1000,'m','LineWidth',2)
 xline(45,'r')
 grid on
 title('2D Flight path', 'FontSize',18)
@@ -271,8 +271,8 @@ ylabel('Altitude [km]', 'FontSize',16)
 figure
 hold on
 plot(master.speed1,master.alt1/1000,'b','LineWidth',2)
-plot(master.speed2,master.alt2/1000,'k','LineWidth',2)
-plot(master.speed3,master.alt3/1000,'m','LineWidth',2)
+plot(master.speed6,master.alt6/1000,'k','LineWidth',2)
+plot(master.speed10,master.alt10/1000,'m','LineWidth',2)
 grid on
 title('Altitude over Speed', 'FontSize',18)
 xlabel('Speed [m/s]', 'FontSize',16)
