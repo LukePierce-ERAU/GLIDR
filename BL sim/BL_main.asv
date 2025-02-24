@@ -865,7 +865,7 @@ function [position,isterminal,direction] = y1_glide(t,y)
     direction = 0;   % The zero can be approached from either direction
 end
 
-function [t,y,L_D,cL] = funsteady(ic,DESIGN,ii)
+function [t,y,L_D] = funsteady(ic,DESIGN,ii)
 % Glide has constant q to keep aero forces
 alt = ic(2);
 
@@ -901,7 +901,6 @@ while alt > 1700
 
     if iter == 1
         L_D(iter,1) = L_Dtemp;
-        cL(iter,1) = cL;
     else
         y(iter,3) = V*cos(gamma);
         y(iter,4) = V*sin(gamma);
@@ -909,7 +908,6 @@ while alt > 1700
         y(iter,2) = y(iter-1,2) - y(iter,4) * 5;
         t(iter,1) = iter * 5;
         L_D(iter,1) = L_Dtemp;
-        cL(iter,1) = cL;
     end
     alt = y(iter,2);
 end
