@@ -230,8 +230,16 @@ title('Range vs. Aspect Ratio', 'FontSize', 18)
 xlabel('Aspect Ratio (AR)', 'FontSize', 16)
 ylabel('Range [km]', 'FontSize', 16)
 
-
-
+%% Altitude vs C_L
+figure
+hold on
+plot(master.cL1,vertcat(glide.alt1,steady.alt1)/1000,'b','LineWidth',2)
+plot(master.cL2,vertcat(glide.alt2,steady.alt2)/1000,'k','LineWidth',2)
+plot(master.cL3,vertcat(glide.alt3,steady.alt3)/1000,'m','LineWidth',2)
+grid on
+title('Altitude over Target c_{L}', 'FontSize',18)
+xlabel('c_{L}', 'FontSize',16)
+ylabel('Altitude [km]', 'FontSize',16)
 
 
 
