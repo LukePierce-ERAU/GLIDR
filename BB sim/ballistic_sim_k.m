@@ -192,12 +192,12 @@ title('Range vs. Aspect Ratio', 'FontSize', 18)
 xlabel('Aspect Ratio (AR)', 'FontSize', 16)
 ylabel('Range [km]', 'FontSize', 16)
 
-%% Altitude vs C_L
+%% Altitude vs Lift to Drag ratio
 figure
 hold on
-plot(master.cL1,vertcat(steady.alt1)/1000,'b','LineWidth',2)
-plot(master.cL2,vertcat(steady.alt2)/1000,'k','LineWidth',2)
-plot(master.cL3,vertcat(steady.alt3)/1000,'m','LineWidth',2)
+plot(master.cL1(2:end),vertcat(steady.alt1(2:end))/1000,'b','LineWidth',2)
+plot(master.cL6(2:end),vertcat(steady.alt6(2:end))/1000,'k','LineWidth',2)
+plot(master.cL10(2:end),vertcat(steady.alt10(2:end))/1000,'m','LineWidth',2)
 grid on
 title('Altitude over Target c_{L}', 'FontSize',18)
 xlabel('c_{L}', 'FontSize',16)
@@ -207,8 +207,8 @@ ylabel('Altitude [km]', 'FontSize',16)
 figure
 hold on
 plot(master.t1/60,master.alt1/1000,'m','LineWidth',2)
-plot(master.t2/60,master.alt2/1000,'k','LineWidth',2)
-plot(master.t3/60,master.alt3/1000,'b','LineWidth',2)
+plot(master.t6/60,master.alt6/1000,'k','LineWidth',2)
+plot(master.t10/60,master.alt10/1000,'b','LineWidth',2)
 xline(90,'r')
 grid on
 title('Altitude over Time','FontSize',18)
@@ -219,8 +219,8 @@ ylabel('Altitude [km]','FontSize',16)
 figure
 hold on
 plot(master.x1/1000,master.alt1/1000,'m','LineWidth',2)
-plot(master.x2/1000,master.alt2/1000,'k','LineWidth',2)
-plot(master.x3/1000,master.alt3/1000,'b','LineWidth',2)
+plot(master.x6/1000,master.alt6/1000,'k','LineWidth',2)
+plot(master.x10/1000,master.alt10/1000,'b','LineWidth',2)
 xline(45,'r')
 grid on
 title('2D Flight path','FontSize',18)
@@ -231,8 +231,8 @@ ylabel('Altitude [km]','FontSize',16)
 figure
 hold on
 plot(master.speed1,master.alt1/1000,'m','LineWidth',2)
-plot(master.speed2,master.alt2/1000,'k','LineWidth',2)
-plot(master.speed3,master.alt3/1000,'b','LineWidth',2)
+plot(master.speed6,master.alt6/1000,'k','LineWidth',2)
+plot(master.speed10,master.alt10/1000,'b','LineWidth',2)
 grid on
 title('Altitude over Speed','FontSize',18)
 xlabel('Speed [m/s]','FontSize',16)
@@ -713,7 +713,7 @@ function [position,isterminal,direction] = y1_glide(t,y)
     direction = 0;   % The zero can be approached from either direction
 end
 
-function [t,y,L_D,cL] = funsteady(ic,DESIGN,ii)
+function [t,y,L_D,C_L] = funsteady(ic,DESIGN,ii)
 % Glide has constant q to keep aero forces
 alt = ic(2);
 
@@ -758,7 +758,7 @@ while alt > 1700 % && iter < max_iter
         y(iter,2) = y(iter-1,2) - y(iter,4) * 5;
         t(iter,1) = iter * 5;
         L_D(iter,1) = L_Dtemp;
-        cL(iter,1) = cL;
+        C_L(iter,1) = cL;
     end
     alt = y(iter,2);
 end
