@@ -285,6 +285,16 @@ for steady_ind = 1:size(steadyvar,3)
     steady.(speed_name) = speed;
 end
 
+% Assign S and AR to Each Flight Configuration
+configs = {'free', 'pull', 'glide', 'steady'};
+
+for k = 1:length(configs)
+    for jj = 1:length(DESIGN.S)  % Ensure indexing matches DESIGN.S
+        eval([configs{k}, '.([''S'', num2str(jj)]) = DESIGN.S(jj);']);  % Assign S values
+        eval([configs{k}, '.([''AR'', num2str(jj)]) = DESIGN.AR(jj);']);  % Assign AR values
+    end
+end
+
 % Creating one line for each config
 
 for jj = 1:1:ii
@@ -292,8 +302,36 @@ master.(['t', num2str(jj)]) = vertcat(free.(['t',num2str(jj)]),pull.(['t',num2st
 master.(['x', num2str(jj)]) = vertcat(free.(['x',num2str(jj)]),pull.(['x',num2str(jj)]),glide.(['x',num2str(jj)]),steady.(['x',num2str(jj)]));
 master.(['alt', num2str(jj)]) = vertcat(free.(['alt',num2str(jj)]),pull.(['alt',num2str(jj)]),glide.(['alt',num2str(jj)]),steady.(['alt',num2str(jj)]));
 master.(['speed', num2str(jj)]) = vertcat(free.(['speed',num2str(jj)]),pull.(['speed',num2str(jj)]),glide.(['speed',num2str(jj)]),steady.(['speed',num2str(jj)]));
+% Add S and AR using vertcat
+master.(['S', num2str(jj)]) = vertcat(free.(['S', num2str(jj)]), pull.(['S', num2str(jj)]), glide.(['S', num2str(jj)]), steady.(['S', num2str(jj)]));
+master.(['AR', num2str(jj)]) = vertcat(free.(['AR', num2str(jj)]), pull.(['AR', num2str(jj)]), glide.(['AR', num2str(jj)]), steady.(['AR', num2str(jj)]));
 end
 
+%% Range vs. Wing Area (S)
+figure
+hold on
+plot([master.S1, master.S2, master.S3, master.S4, master.S5, ...
+      master.S6, master.S7, master.S8, master.S9, master.S10], ...
+     [master.x1(end)/1000, master.x2(end)/1000, master.x3(end)/1000, master.x4(end)/1000, master.x5(end)/1000, ...
+      master.x6(end)/1000, master.x7(end)/1000, master.x8(end)/1000, master.x9(end)/1000, master.x10(end)/1000], '-o', 'LineWidth', 2)
+grid on
+title('Range vs. Wing Area', 'FontSize', 18)
+xlabel('Wing Area (S) [m²]', 'FontSize', 16)
+ylabel('Range [km]', 'FontSize', 16)
+
+%% Range vs. Aspect Ratio (AR)
+figure
+hold on
+plot([master.AR1, master.AR2, master.AR3, master.AR4, master.AR5, ...
+      master.AR6, master.AR7, master.AR8, master.AR9, master.AR10], ...
+     [master.x1(end)/1000, master.x2(end)/1000, master.x3(end)/1000, master.x4(end)/1000, master.x5(end)/1000, ...
+      master.x6(end)/1000, master.x7(end)/1000, master.x8(end)/1000, master.x9(end)/1000, master.x10(end)/1000], '-o', 'LineWidth', 2)
+grid on
+title('Range vs. Aspect Ratio', 'FontSize', 18)
+xlabel('Aspect Ratio (AR)', 'FontSize', 16)
+ylabel('Range [km]', 'FontSize', 16)
+
+%% Altitude over Time
 figure
 hold on
 plot(master.t1/60,master.alt1/1000,'b','LineWidth',2)
@@ -305,6 +343,7 @@ title('Altitude over Time', 'FontSize',18)
 xlabel('Time [mins]', 'FontSize',16)
 ylabel('Altitude [km]', 'FontSize',16)
 
+%% 2D Flight Path
 figure
 hold on
 plot(master.x1/1000,master.alt1/1000,'b','LineWidth',2)
@@ -316,6 +355,7 @@ title('2D Flight path', 'FontSize',18)
 xlabel('Distance Travelled [km]', 'FontSize',16)
 ylabel('Altitude [km]', 'FontSize',16)
 
+%% Altitude VS Speed
 figure
 hold on
 plot(master.speed1,master.alt1/1000,'b','LineWidth',2)

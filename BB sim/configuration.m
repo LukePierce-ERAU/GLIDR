@@ -67,7 +67,7 @@ elseif config == 2
 elseif config == 3
     % Geometry assumptions for Bullet Bill
     DESIGN.m = 5;      % Mass (kg)
-    DESIGN.S = linspace(1,3,3);
+    DESIGN.S = linspace(0.5, 2, 10);
     DESIGN.c = 1.2;      % Chord Length (m)
     DESIGN.b = 0.45;     % Wingspan (m)
     DESIGN.AR = DESIGN.b.^2 ./ DESIGN.S; % Aspect Ratio
