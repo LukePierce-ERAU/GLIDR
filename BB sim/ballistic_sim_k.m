@@ -209,7 +209,6 @@ hold on
 plot(master.t1/60,master.alt1/1000,'m','LineWidth',2)
 plot(master.t6/60,master.alt6/1000,'k','LineWidth',2)
 plot(master.t10/60,master.alt10/1000,'b','LineWidth',2)
-xline(90,'r')
 grid on
 title('Altitude over Time','FontSize',18)
 xlabel('Time [mins]','FontSize',16)
