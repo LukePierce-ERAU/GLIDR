@@ -785,8 +785,8 @@ while alt > 1700 % && iter < max_iter
     cD = (cD0 + cDi);
 
     % Airbrake Contribution
-    C_d_airbrake = 2.2;
-    F_airbrake = 0.5 * rho * V^2 * DESIGN.S_airbrake * C_d_airbrake;
+    C_d_airbrake = 0.3; % Estimate based on "turbulent flow around circular arcs"  Jean-Baptiste R. G. Souppez,1,2 PatrickBot,3 and IgnazioMariaViola
+    F_airbrake = 0.5 * rho * V^2 * DESIGN.S_airbrake*(2/3) * C_d_airbrake;
 
     % L_Dtemp = cL/cD;
     % gamma = atan(cD/cL);
