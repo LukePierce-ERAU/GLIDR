@@ -1,3 +1,4 @@
+
 function [DESIGN] = configuration(config)
 % Configuration selection and defining geometry for each
 %   Configurations are chosen and for all stages of flight are organized
@@ -89,8 +90,11 @@ end
     % Compute arc length per airbrake
     theta_airbrake = (2 * pi) / num_airbrakes; % Radians
     arc_length_airbrake = theta_airbrake * fuselage_radius;
-    
-    % Compute airbrake area
-    DESIGN.S_airbrake = arc_length_airbrake * airbrake_length;
+    DESIGN.c_airbrake = 0.6844;
 
+    % Compute airbrake area
+    DESIGN.S_airbrake = DESIGN.c_airbrake * airbrake_length;
+
+    DESIGN.c_airbrake = 0.6844; % Ask Thomas how he got this
+    DESIGN.airbrake_ac = 0.45;
 end

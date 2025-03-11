@@ -24,7 +24,7 @@ function [DESIGN] = configuration(config)
 if config == 1
     % Geometry assumptions for Blended Wing Body
 
-    DESIGN.m = 8;
+    DESIGN.m = 6;
     DESIGN.c = 1.2; % Set number
     DESIGN.b = 0.45;
     DESIGN.S = (linspace(1,2,10))'; % Very crude guess based on prelim CAD work

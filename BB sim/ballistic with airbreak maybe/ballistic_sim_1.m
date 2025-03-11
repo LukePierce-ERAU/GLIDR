@@ -23,6 +23,8 @@ config = 3; % Change to run sims on each config
 
 
 DESIGN = configuration(config);
+steady = struct();
+
 
 end_sim = size(DESIGN.S,2);
 for ii = 1:1:end_sim
@@ -33,6 +35,10 @@ for ii = 1:1:end_sim
 options = odeset('Events', @y1_free);
 place_free = @(t,y) funfree(t,y,DESIGN,ii);
 [t,y,te,ye,ei] = ode45(place_free, linspace(0,100,1000), [36000;0], options); % need to impliment aoa for linear region
+
+for k = 1:numel(t)
+    [~,moment(k,:)] = place_free(t(k),y(k,:));
+end
 
 freevar(:,:,ii) = {t;y(:,1);abs(y(:,2))};
 free_out(:,:,ii) = [te,ye,ei];
@@ -93,6 +99,9 @@ else
     steady_inip(1,ii) = te(1); % Take only the first event if multiple exist
 end
 
+m_name = ['moment', num2str(ii)];
+steady.(m_name) = moment;
+
 clear velo
 
 
@@ -113,7 +122,6 @@ end
 
 
 free = struct();
-steady = struct();
 master = struct();
 
 
@@ -256,13 +264,11 @@ ylabel('Altitude [km]','FontSize',16)
 
 
 
-%% Figure: Dynamic Pressure vs. Altitude
+%% Figure: Airbreak moment vs. Altitude
 figure;
-rho = 1.225 * (1 - 0.0000226 * y(:,1)).^4.256; % Estimate air density
-q_values = 0.5 * rho .* y(:,2).^2; % Compute dynamic pressure
-plot(q_values, y(:,1), 'b', 'LineWidth', 2);
+plot(steady.moment1, free.alt1, 'b', 'LineWidth', 2);
 set(gca, 'YDir', 'reverse'); % Altitude decreases downward
-xlabel('Dynamic Pressure (Pa)');
+xlabel('Moment');
 ylabel('Altitude (m)');
 title('Dynamic Pressure vs. Altitude');
 grid on;
@@ -373,7 +379,7 @@ grid on;
 
 % Freefall section ode ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-function dydt = funfree(t,y,DESIGN,ii)
+function [dydt,moment] = funfree(t,y,DESIGN,ii)
 
 
 % Get atmospheric properties at current height
@@ -390,10 +396,10 @@ function dydt = funfree(t,y,DESIGN,ii)
 
     % Airbrake Contribution (Assumption: Deployed at 90°)
     C_d_airbrake = 2.2; % Given Cd
-    F_airbrake = q *  DESIGN.S_airbrake * C_d_airbrake; % Airbrake drag force
-
+    D_airbrake = q *  DESIGN.S_airbrake * C_d_airbrake; % Airbrake drag force
+    moment(numel(t),1) = D_airbrake * DESIGN.airbrake_ac; % This is for 1 of 3 airbrakes
     % Calculate the total drag force
-    drag_force = 0.5 * cD * DESIGN.S(ii) * rho * y(2)^2 + F_airbrake;
+    drag_force = 0.5 * cD * DESIGN.S(ii) * rho * y(2)^2 + D_airbrake;
 
     % Calculate the drag force and acceleration due to gravity
     % Drag force (assumes velocity is y(2))
@@ -751,7 +757,7 @@ function [position,isterminal,direction] = y1_glide(t,y)
     direction = 0;   % The zero can be approached from either direction
 end
 
-function [t,y,L_D,C_L] = funsteady(ic,DESIGN,ii)
+function [t,y,L_D,C_L,moment] = funsteady(ic,DESIGN,ii)
 % Glide has constant q to keep aero forces
 alt = ic(2);
 
@@ -765,15 +771,15 @@ while alt > 1700 % && iter < max_iter
     iter = iter + 1; % One iteration is 5 second
 
      [T, a, P, rho, nu, mu] = atmosisa(alt, 'extended', true);
-     % 
-     % if iter == 1
-     % % finding set q value
-     % q_con = (0.5*rho*y(iter,3)^2)/2;
-     % 
-     % end
+
+     if iter == 1
+     % finding set q value
+     q_con = (0.5*rho*y(iter,3)^2)/2;
+
+     end
     
-     % V = sqrt(2*q_con/(rho));
-     V = sqrt(2 * (0.5 * rho * y(iter,3)^2) / rho);
+     V = sqrt(2*q_con/(rho));
+     
      W = DESIGN.m*DESIGN.g;
      
     cL = W / (0.5 * rho * V^2 * DESIGN.S(ii));
@@ -786,14 +792,15 @@ while alt > 1700 % && iter < max_iter
 
     % Airbrake Contribution
     C_d_airbrake = 0.3; % Estimate based on "turbulent flow around circular arcs"  Jean-Baptiste R. G. Souppez,1,2 PatrickBot,3 and IgnazioMariaViola
-    F_airbrake = 0.5 * rho * V^2 * DESIGN.S_airbrake*(2/3) * C_d_airbrake;
+    D_airbrake = 0.5 * rho * V^2 * DESIGN.S_airbrake*(2/3) * C_d_airbrake;
 
     % L_Dtemp = cL/cD;
     % gamma = atan(cD/cL);
     % Compute total drag and Lift-to-Drag Ratio (L/D)
-    D = 0.5 * rho * V^2 * DESIGN.S(ii) * cD + F_airbrake;
+    D = 0.5 * rho * V^2 * DESIGN.S(ii) * cD + D_airbrake;
     L_D(iter,1) = cL / cD;
     gamma = atan(D / W);
+    moment(iter,1) = D_airbrake * DESIGN.airbrake_ac; % This is for 1 of 3 airbrakes
 
     % Compute new position
     y(iter+1,1) = y(iter,1) + V * cos(gamma);
