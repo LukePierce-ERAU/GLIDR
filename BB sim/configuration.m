@@ -80,10 +80,19 @@ elseif config == 3
     % DESIGN = [1, 2, 3]; % All assumptions make an array
 end
      DESIGN.g = 9.81;
- % DESIGN.cLalpha = 5.7; % Lift curve slope
+    % Airbrake properties
+    fuselage_diameter = 0.3; % meters
+    fuselage_radius = fuselage_diameter / 2;
+    num_airbrakes = 3;
+    airbrake_length = 0.9; % meters
+    
+    % Compute arc length per airbrake
+    theta_airbrake = (2 * pi) / num_airbrakes; % Radians
+    arc_length_airbrake = theta_airbrake * fuselage_radius;
+    DESIGN.c_airbrake = 0.6844;
 
-end
+    % Compute airbrake area
+    DESIGN.S_airbrake = DESIGN.c_airbrake * airbrake_length;
 
-     % DESIGN.g = 9.81;
-
-     % end
+    DESIGN.c_airbrake = 0.6844; % Ask Thomas how he got this
+    DESIGN.airbrake_ac = 0.45;

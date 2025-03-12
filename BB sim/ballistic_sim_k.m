@@ -23,6 +23,7 @@ config = 3; % Change to run sims on each config
 
 
 DESIGN = configuration(config);
+steady = struct();
 
 end_sim = size(DESIGN.S,2);
 for ii = 1:1:end_sim
@@ -33,6 +34,10 @@ for ii = 1:1:end_sim
 options = odeset('Events', @y1_free);
 place_free = @(t,y) funfree(t,y,DESIGN,ii);
 [t,y,te,ye,ei] = ode45(place_free, linspace(0,100,1000), [36000;0], options); % need to impliment aoa for linear region
+
+for k = 1:numel(t)
+    [~,moment(k,:)] = place_free(t(k),y(k,:));
+end
 
 freevar(:,:,ii) = {t;y(:,1);abs(y(:,2))};
 free_out(:,:,ii) = [te,ye,ei];
@@ -76,9 +81,10 @@ velo(:,1) = sqrt(y(:,3).^2+y(:,4).^2);
 steadyvar(:,:,ii) = {t;y(:,1);y(:,2);velo(:,1);L_D(:,1);cL(:,1)};
 steady_inip(1,ii) = te; 
 
+m_name = ['moment', num2str(ii)];
+steady.(m_name) = moment;
+
 clear velo
-
-
 
 % CL DESIGN POINT EQUATION ++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -96,7 +102,7 @@ end
 
 
 free = struct();
-steady = struct();
+% steady = struct();
 master = struct();
 
 
@@ -237,6 +243,14 @@ title('Altitude over Speed','FontSize',18)
 xlabel('Speed [m/s]','FontSize',16)
 ylabel('Altitude [km]','FontSize',16)
 
+%% Figure: Airbreak moment vs. Altitude
+figure;
+plot(steady.moment1, free.alt1, 'b', 'LineWidth', 2);
+set(gca, 'YDir', 'reverse'); % Altitude decreases downward
+xlabel('Moment');
+ylabel('Altitude (m)');
+title('Dynamic Pressure vs. Altitude');
+grid on;
 
 %  i = 1;
 % for free_ind = 1:size(free,3)
@@ -344,24 +358,28 @@ ylabel('Altitude [km]','FontSize',16)
 
 % Freefall section ode ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-function dydt = funfree(t,y,DESIGN,ii)
+function [dydt,moment] = funfree(t,y,DESIGN,ii)
 
 
 % Get atmospheric properties at current height
     [T, a, P, rho, nu, mu] = atmosisa(y(1), 'extended', true);
 
+    q = 0.5 * rho * y(2)^2; % Dynamic pressure
+    
     % Drag Buildup for changing Re and flight condition
     Re = rho.*DESIGN.c.*abs(y(2))./mu;
+    cL = 0;
+    [cD0,cDi] = drag(Re,cL,DESIGN,ii);
+    cD = cD0 + cDi;
 
+    C_d_airbrake = 2.2; % Given Cd
+    D_airbrake = q *  DESIGN.S_airbrake * C_d_airbrake; % Airbrake drag force
+    moment(numel(t),1) = D_airbrake * DESIGN.airbrake_ac; % This is for 1 of 3 airbrakes
 
-cL = 0;
-[cD0,cDi] = drag(Re,cL,DESIGN,ii);
-cD = cD0 + cDi;
-
-drag_force = 0.5 * cD * DESIGN.S(ii) * rho * y(2).^2;
+    drag_force = 0.5 * cD * DESIGN.S(ii) * rho * y(2).^2;
 
     % Calculate the drag force and acceleration due to gravity
-     % Drag force (assumes velocity is y(2))
+    % Drag force (assumes velocity is y(2))
     dydt = [y(2); -DESIGN.g + drag_force ./ DESIGN.m]; % [dy/dt, dv/dt]
 end
 
@@ -712,7 +730,7 @@ function [position,isterminal,direction] = y1_glide(t,y)
     direction = 0;   % The zero can be approached from either direction
 end
 
-function [t,y,L_D,C_L] = funsteady(ic,DESIGN,ii)
+function [t,y,L_D,C_L, moment] = funsteady(ic,DESIGN,ii)
 % Glide has constant q to keep aero forces
 alt = ic(2);
 
@@ -743,9 +761,13 @@ while alt > 1700 % && iter < max_iter
     Re = rho.*DESIGN.c.*V./mu;
     [cD0,cDi] = drag(Re,cL,DESIGN,ii);
     cD = (cD0 + cDi);
+    
+    C_d_airbrake = 0.3;
+    D_airbrake = 0.5 * rho * V^2 * DESIGN.S_airbrake*(2/3) * C_d_airbrake;
 
     L_Dtemp = cL/cD;
     gamma = atan(cD/cL);
+    moment(iter,1) = D_airbrake * DESIGN.airbrake_ac;
 
     if iter == 1
         L_D(iter,1) = L_Dtemp;
