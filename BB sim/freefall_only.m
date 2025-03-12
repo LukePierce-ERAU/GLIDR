@@ -23,7 +23,7 @@ config = 3; % Change to run sims on each config
 
 
 DESIGN = configuration(config);
-steady = struct();
+master = struct();
 
 end_sim = size(DESIGN.S,2);
 for ii = 1:1:end_sim
@@ -38,6 +38,9 @@ place_free = @(t,y) funfree(t,y,DESIGN,ii);
 for k = 1:numel(t)
     [~,moment(k,:)] = place_free(t(k),y(k,:));
 end
+
+m_name = ['moment', num2str(ii)];
+master.(m_name) = moment;
 
 freevar(:,:,ii) = {t;y(:,1);abs(y(:,2))};
 free_out(:,:,ii) = [te,ye,ei];
@@ -75,16 +78,16 @@ clear velo
 
 % Stead state cruise
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[t,y,L_D,cL] = funsteady(ic,DESIGN,ii);
-
-velo(:,1) = sqrt(y(:,3).^2+y(:,4).^2);
-steadyvar(:,:,ii) = {t;y(:,1);y(:,2);velo(:,1);L_D(:,1);cL(:,1)};
-steady_inip(1,ii) = te; 
-
-m_name = ['moment', num2str(ii)];
-steady.(m_name) = moment;
-
-clear velo
+% [t,y,L_D,cL] = funsteady(ic,DESIGN,ii);
+% 
+% velo(:,1) = sqrt(y(:,3).^2+y(:,4).^2);
+% steadyvar(:,:,ii) = {t;y(:,1);y(:,2);velo(:,1);L_D(:,1);cL(:,1)};
+% steady_inip(1,ii) = te; 
+% 
+% m_name = ['moment', num2str(ii)];
+% steady.(m_name) = moment;
+% 
+% clear velo
 
 % CL DESIGN POINT EQUATION ++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -103,7 +106,7 @@ end
 
 free = struct();
 % steady = struct();
-master = struct();
+
 
 
 for free_ind = 1:size(freevar,3)
@@ -124,90 +127,90 @@ end
 
 
 
-for steady_ind = 1:size(steadyvar,3)
-    steady_mat_ind = cell2mat(steadyvar(:,:,steady_ind));
-    t = steady_inip(1,steady_ind) + steady_mat_ind(1:size(steady_mat_ind,1)/6);
-    x = steady_mat_ind(size(steady_mat_ind,1)/6+1:size(steady_mat_ind,1)/6*2);
-    alt = steady_mat_ind(size(steady_mat_ind,1)/6*2+1:size(steady_mat_ind,1)/6*3);
-    speed = steady_mat_ind(size(steady_mat_ind,1)/6*3+1:size(steady_mat_ind,1)/6*4);
-    L_D = steady_mat_ind(size(steady_mat_ind,1)/6*4+1:size(steady_mat_ind,1)/6*5);
-    cL = steady_mat_ind(size(steady_mat_ind,1)/6*5+1:end);
-    % Add pulls for L/D ratio and cL
-    t_name = ['t', num2str(steady_ind)];
-    x_name = ['x', num2str(steady_ind)];
-    alt_name = ['alt', num2str(steady_ind)];
-    speed_name = ['speed', num2str(steady_ind)];
-    L_D_name = ['LoveD', num2str(steady_ind)];
-    cL_name = ['cL', num2str(steady_ind)];
-    steady.(t_name) = t;
-    steady.(x_name) = x;
-    steady.(alt_name) = alt;
-    steady.(speed_name) = speed;
-    steady.(L_D_name) = L_D;
-    steady.(cL_name) = cL;
-end
+% for steady_ind = 1:size(steadyvar,3)
+%     steady_mat_ind = cell2mat(steadyvar(:,:,steady_ind));
+%     t = steady_inip(1,steady_ind) + steady_mat_ind(1:size(steady_mat_ind,1)/6);
+%     x = steady_mat_ind(size(steady_mat_ind,1)/6+1:size(steady_mat_ind,1)/6*2);
+%     alt = steady_mat_ind(size(steady_mat_ind,1)/6*2+1:size(steady_mat_ind,1)/6*3);
+%     speed = steady_mat_ind(size(steady_mat_ind,1)/6*3+1:size(steady_mat_ind,1)/6*4);
+%     L_D = steady_mat_ind(size(steady_mat_ind,1)/6*4+1:size(steady_mat_ind,1)/6*5);
+%     cL = steady_mat_ind(size(steady_mat_ind,1)/6*5+1:end);
+%     % Add pulls for L/D ratio and cL
+%     t_name = ['t', num2str(steady_ind)];
+%     x_name = ['x', num2str(steady_ind)];
+%     alt_name = ['alt', num2str(steady_ind)];
+%     speed_name = ['speed', num2str(steady_ind)];
+    % L_D_name = ['LoveD', num2str(steady_ind)];
+    % cL_name = ['cL', num2str(steady_ind)];
+    % steady.(t_name) = t;
+    % steady.(x_name) = x;
+    % steady.(alt_name) = alt;
+    % steady.(speed_name) = speed;
+    % steady.(L_D_name) = L_D;
+    % steady.(cL_name) = cL;
+% end
 
 % Assign S and AR to Each Flight Configuration
 configs = {'free', 'pull', 'glide', 'steady'};
 
-for k = 1:length(configs)
-    for jj = 1:length(DESIGN.S)  % Ensure indexing matches DESIGN.S
-        eval([configs{k}, '.([''S'', num2str(jj)]) = DESIGN.S(jj);']);  % Assign S values
-        eval([configs{k}, '.([''AR'', num2str(jj)]) = DESIGN.AR(jj);']);  % Assign AR values
-    end
-end
+% for k = 1:length(configs)
+%     for jj = 1:length(DESIGN.S)  % Ensure indexing matches DESIGN.S
+%         eval([configs{k}, '.([''S'', num2str(jj)]) = DESIGN.S(jj);']);  % Assign S values
+%         eval([configs{k}, '.([''AR'', num2str(jj)]) = DESIGN.AR(jj);']);  % Assign AR values
+%     end
+% end
 
 % Creating one line for each config
 
 for jj = 1:1:ii
-master.(['t', num2str(jj)]) = vertcat(free.(['t',num2str(jj)]),steady.(['t',num2str(jj)]));
-master.(['x', num2str(jj)]) = vertcat(free.(['x',num2str(jj)]),steady.(['x',num2str(jj)]));
-master.(['alt', num2str(jj)]) = vertcat(free.(['alt',num2str(jj)]),steady.(['alt',num2str(jj)]));
-master.(['speed', num2str(jj)]) = vertcat(free.(['speed',num2str(jj)]),steady.(['speed',num2str(jj)]));
-master.(['LoveD', num2str(jj)]) = vertcat(steady.(['LoveD',num2str(jj)]));
-master.(['cL', num2str(jj)])    = vertcat(steady.(['cL',num2str(jj)]));
+master.(['t', num2str(jj)]) = vertcat(free.(['t',num2str(jj)]));  %,steady.(['t',num2str(jj)]));
+master.(['x', num2str(jj)]) = vertcat(free.(['x',num2str(jj)])); %steady.(['x',num2str(jj)]));
+master.(['alt', num2str(jj)]) = vertcat(free.(['alt',num2str(jj)])); %,steady.(['alt',num2str(jj)]));
+master.(['speed', num2str(jj)]) = vertcat(free.(['speed',num2str(jj)]));  %steady.(['speed',num2str(jj)]));
+% master.(['LoveD', num2str(jj)]) = vertcat(steady.(['LoveD',num2str(jj)]));
+% master.(['cL', num2str(jj)])    = vertcat(steady.(['cL',num2str(jj)]));
 
-% Add S and AR using vertcat
-master.(['S', num2str(jj)]) = vertcat(free.(['S', num2str(jj)]), pull.(['S', num2str(jj)]), glide.(['S', num2str(jj)]), steady.(['S', num2str(jj)]));
-master.(['AR', num2str(jj)]) = vertcat(free.(['AR', num2str(jj)]), pull.(['AR', num2str(jj)]), glide.(['AR', num2str(jj)]), steady.(['AR', num2str(jj)]));
+% % Add S and AR using vertcat
+% master.(['S', num2str(jj)]) = vertcat(free.(['S', num2str(jj)]), pull.(['S', num2str(jj)]), glide.(['S', num2str(jj)]), steady.(['S', num2str(jj)]));
+% master.(['AR', num2str(jj)]) = vertcat(free.(['AR', num2str(jj)]), pull.(['AR', num2str(jj)]), glide.(['AR', num2str(jj)]), steady.(['AR', num2str(jj)]));
 
 end
 
 
 %% Range vs. Wing Area (S)
-figure
-hold on
-plot([master.S1, master.S2, master.S3, master.S4, master.S5, ...
-      master.S6, master.S7, master.S8, master.S9, master.S10], ...
-     [master.x1(end)/1000, master.x2(end)/1000, master.x3(end)/1000, master.x4(end)/1000, master.x5(end)/1000, ...
-      master.x6(end)/1000, master.x7(end)/1000, master.x8(end)/1000, master.x9(end)/1000, master.x10(end)/1000], '-o', 'LineWidth', 2)
-grid on
-title('Range vs. Wing Area', 'FontSize', 18)
-xlabel('Wing Area (S) [m²]', 'FontSize', 16)
-ylabel('Range [km]', 'FontSize', 16)
-
+% figure
+% hold on
+% plot([master.S1, master.S2, master.S3, master.S4, master.S5, ...
+%       master.S6, master.S7, master.S8, master.S9, master.S10], ...
+%      [master.x1(end)/1000, master.x2(end)/1000, master.x3(end)/1000, master.x4(end)/1000, master.x5(end)/1000, ...
+%       master.x6(end)/1000, master.x7(end)/1000, master.x8(end)/1000, master.x9(end)/1000, master.x10(end)/1000], '-o', 'LineWidth', 2)
+% grid on
+% title('Range vs. Wing Area', 'FontSize', 18)
+% xlabel('Wing Area (S) [m²]', 'FontSize', 16)
+% ylabel('Range [km]', 'FontSize', 16)
+% 
 %% Range vs. Aspect Ratio (AR)
-figure
-hold on
-plot([master.AR1, master.AR2, master.AR3, master.AR4, master.AR5, ...
-      master.AR6, master.AR7, master.AR8, master.AR9, master.AR10], ...
-     [master.x1(end)/1000, master.x2(end)/1000, master.x3(end)/1000, master.x4(end)/1000, master.x5(end)/1000, ...
-      master.x6(end)/1000, master.x7(end)/1000, master.x8(end)/1000, master.x9(end)/1000, master.x10(end)/1000], '-o', 'LineWidth', 2)
-grid on
-title('Range vs. Aspect Ratio', 'FontSize', 18)
-xlabel('Aspect Ratio (AR)', 'FontSize', 16)
-ylabel('Range [km]', 'FontSize', 16)
-
+% figure
+% hold on
+% plot([master.AR1, master.AR2, master.AR3, master.AR4, master.AR5, ...
+%       master.AR6, master.AR7, master.AR8, master.AR9, master.AR10], ...
+%      [master.x1(end)/1000, master.x2(end)/1000, master.x3(end)/1000, master.x4(end)/1000, master.x5(end)/1000, ...
+%       master.x6(end)/1000, master.x7(end)/1000, master.x8(end)/1000, master.x9(end)/1000, master.x10(end)/1000], '-o', 'LineWidth', 2)
+% grid on
+% title('Range vs. Aspect Ratio', 'FontSize', 18)
+% xlabel('Aspect Ratio (AR)', 'FontSize', 16)
+% ylabel('Range [km]', 'FontSize', 16)
+% 
 %% Altitude vs Lift to Drag ratio
-figure
-hold on
-plot(master.cL1(2:end),vertcat(steady.alt1(2:end))/1000,'b','LineWidth',2)
-plot(master.cL6(2:end),vertcat(steady.alt6(2:end))/1000,'k','LineWidth',2)
-plot(master.cL10(2:end),vertcat(steady.alt10(2:end))/1000,'m','LineWidth',2)
-grid on
-title('Altitude over Target c_{L}', 'FontSize',18)
-xlabel('c_{L}', 'FontSize',16)
-ylabel('Altitude [km]', 'FontSize',16)
+% figure
+% hold on
+% plot(master.cL1(2:end),vertcat(steady.alt1(2:end))/1000,'b','LineWidth',2)
+% plot(master.cL6(2:end),vertcat(steady.alt6(2:end))/1000,'k','LineWidth',2)
+% plot(master.cL10(2:end),vertcat(steady.alt10(2:end))/1000,'m','LineWidth',2)
+% grid on
+% title('Altitude over Target c_{L}', 'FontSize',18)
+% xlabel('c_{L}', 'FontSize',16)
+% ylabel('Altitude [km]', 'FontSize',16)
 
 %% Altitude over Time
 figure
@@ -221,16 +224,16 @@ xlabel('Time [mins]','FontSize',16)
 ylabel('Altitude [km]','FontSize',16)
 
 %% 2D Flight Path
-figure
-hold on
-plot(master.x1/1000,master.alt1/1000,'m','LineWidth',2)
-plot(master.x6/1000,master.alt6/1000,'k','LineWidth',2)
-plot(master.x10/1000,master.alt10/1000,'b','LineWidth',2)
-xline(45,'r')
-grid on
-title('2D Flight path','FontSize',18)
-xlabel('Distance Travelled [km]','FontSize',16)
-ylabel('Altitude [km]','FontSize',16)
+% figure
+% hold on
+% plot(master.x1/1000,master.alt1/1000,'m','LineWidth',2)
+% plot(master.x6/1000,master.alt6/1000,'k','LineWidth',2)
+% plot(master.x10/1000,master.alt10/1000,'b','LineWidth',2)
+% xline(45,'r')
+% grid on
+% title('2D Flight path','FontSize',18)
+% xlabel('Distance Travelled [km]','FontSize',16)
+% ylabel('Altitude [km]','FontSize',16)
 
 %% Altitude VS Speed
 figure
@@ -245,11 +248,11 @@ ylabel('Altitude [km]','FontSize',16)
 
 %% Figure: Airbreak moment vs. Altitude
 figure;
-plot(steady.moment1, free.alt1, 'b', 'LineWidth', 2);
+plot(master.moment1, master.alt1, 'b', 'LineWidth', 2);
 set(gca, 'YDir', 'reverse'); % Altitude decreases downward
-xlabel('Moment');
-ylabel('Altitude (m)');
-title('Moment vs. Altitude');
+xlabel('Moment',16);
+ylabel('Altitude (m)',16);
+title('Moment vs. Altitude', 'FontSize',18);
 grid on;
 
 %  i = 1;
@@ -387,8 +390,10 @@ function [position,isterminal,direction] = y1_free(t,y)
 [T, a, P, rho, nu, mu] = atmosisa(y(1), 'extended', true);
 
 % position = y(2) + 200; % The value that we want to be zero (speed)
-    q_current = 0.5 * rho * y(2)^2;
-    position = q_current - 10; % Stop when q = 1700 Pa
+    % q_current = 0.5 * rho * y(2)^2;
+    % position = q_current - 10; % Stop when q = 1700 Pa
+    target_altitude = 1700;
+    position = y(1) - target_altitude ;
     isterminal = 1;  % Halt integration 
     direction = 0;   % The zero can be approached from either direction
 end
@@ -730,65 +735,65 @@ function [position,isterminal,direction] = y1_glide(t,y)
     direction = 0;   % The zero can be approached from either direction
 end
 
-function [t,y,L_D,C_L, moment] = funsteady(ic,DESIGN,ii)
-% Glide has constant q to keep aero forces
-alt = ic(2);
-
-iter = 0;
-y(1,1) = ic(1);
-y(1,2) = ic(2);
-y(1,3) = ic(3);
-y(1,4) = ic(4);
-
-while alt > 1700 % && iter < max_iter
-    iter = iter + 1; % One iteration is 5 second
-
-     [T, a, P, rho, nu, mu] = atmosisa(alt, 'extended', true);
-
-     if iter == 1
-     % finding set q value
-     q_con = (0.5*rho*y(iter,3)^2)/2;
-      
-     end
-    
-     V = sqrt(2*q_con/(rho));
-     W = DESIGN.m*DESIGN.g;
-     
-    cL = W / (0.5 * rho * V^2 * DESIGN.S(ii));
-   
-
-    % Drag Buildup for changing Re and flight condition
-    Re = rho.*DESIGN.c.*V./mu;
-    [cD0,cDi] = drag(Re,cL,DESIGN,ii);
-    cD = (cD0 + cDi);
-    
-    C_d_airbrake = 0.3;
-    D_airbrake = 0.5 * rho * V^2 * DESIGN.S_airbrake*(2/3) * C_d_airbrake;
-
-    L_Dtemp = cL/cD;
-    gamma = atan(cD/cL);
-    moment(iter,1) = D_airbrake * DESIGN.airbrake_ac;
-
-    if iter == 1
-        L_D(iter,1) = L_Dtemp;
-        cL(iter,1) = cL;
-    else
-        y(iter,3) = V*cos(gamma);
-        y(iter,4) = V*sin(gamma);
-        y(iter,1) = y(iter-1,1) + y(iter,3) * 5;
-        y(iter,2) = y(iter-1,2) - y(iter,4) * 5;
-        t(iter,1) = iter * 5;
-        L_D(iter,1) = L_Dtemp;
-        C_L(iter,1) = cL;
-    end
-    alt = y(iter,2);
-end
- 
-% if iter >= max_iter
-%         warning('funsteady: Max iterations reached, check logic.');
+% function [t,y,L_D,C_L, moment] = funsteady(ic,DESIGN,ii)
+% % Glide has constant q to keep aero forces
+% alt = ic(2);
+% 
+% iter = 0;
+% y(1,1) = ic(1);
+% y(1,2) = ic(2);
+% y(1,3) = ic(3);
+% y(1,4) = ic(4);
+% 
+% while alt > 1700 % && iter < max_iter
+%     iter = iter + 1; % One iteration is 5 second
+% 
+%      [T, a, P, rho, nu, mu] = atmosisa(alt, 'extended', true);
+% 
+%      if iter == 1
+%      % finding set q value
+%      q_con = (0.5*rho*y(iter,3)^2)/2;
+% 
+%      end
+% 
+%      V = sqrt(2*q_con/(rho));
+%      W = DESIGN.m*DESIGN.g;
+% 
+%     cL = W / (0.5 * rho * V^2 * DESIGN.S(ii));
+% 
+% 
+%     % Drag Buildup for changing Re and flight condition
+%     Re = rho.*DESIGN.c.*V./mu;
+%     [cD0,cDi] = drag(Re,cL,DESIGN,ii);
+%     cD = (cD0 + cDi);
+% 
+%     C_d_airbrake = 0.3;
+%     D_airbrake = 0.5 * rho * V^2 * DESIGN.S_airbrake*(2/3) * C_d_airbrake;
+% 
+%     L_Dtemp = cL/cD;
+%     gamma = atan(cD/cL);
+%     moment(iter,1) = D_airbrake * DESIGN.airbrake_ac;
+% 
+%     if iter == 1
+%         L_D(iter,1) = L_Dtemp;
+%         cL(iter,1) = cL;
+%     else
+%         y(iter,3) = V*cos(gamma);
+%         y(iter,4) = V*sin(gamma);
+%         y(iter,1) = y(iter-1,1) + y(iter,3) * 5;
+%         y(iter,2) = y(iter-1,2) - y(iter,4) * 5;
+%         t(iter,1) = iter * 5;
+%         L_D(iter,1) = L_Dtemp;
+%         C_L(iter,1) = cL;
+%     end
+%     alt = y(iter,2);
+% end
+% 
+% % if iter >= max_iter
+% %         warning('funsteady: Max iterations reached, check logic.');
+% % 
+% % end
 % 
 % end
-
-end
 
 
