@@ -1,18 +1,6 @@
 %% Full simulation of fall from 36.5km for DCR configurations
 clear
 close all
-
-%% Next steps for DCR?
-%   -   Develop Glide condition [Thomas]
-%   -   Create a system that can do everything up to glide condition in one
-%       main script [Kaylee}
-%   -   impliment full 3DOF with theta-AoA relationship +++++++++++++++++++
-%   -   Recreate in simulink [PDR task]
-%   -   cm calc [josiah]
-
-
-
-
 %% GEOMETRY ASSUMPTION SECTIONS AND GLOBAL VARIABLES ++++++++++++++++++++++
 
 
@@ -28,8 +16,6 @@ steady = struct();
 end_sim = size(DESIGN.S,2);
 for ii = 1:1:end_sim
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Freefall until desired q
 options = odeset('Events', @y1_free);
 place_free = @(t,y) funfree(t,y,DESIGN,ii);
@@ -46,35 +32,10 @@ global pull_init
 pull_init = te;
 
 glide_inip(1,ii) = te;
-
-% Pullout @ desired q
-% options = odeset('Events', @y1_pull);
-% place_pull = @(t,y) funpull(t,y,DESIGN,ii);
-% [t,y,te,ye,ei] = ode45(place_pull, [0 5000], [0;ye(1,1);ye(1,2);-pi/2], options); % need to impliment theta and Q
-
-% pull(:,:,ii) = {t;y(:,1);y(:,2);abs(y(:,3));y(:,4)};
-% pull_out(:,:,ii) = [te,ye,ei];
-% 
-% glide_initp(1,ii) = te;
-
-% going from fast to ideal cruise
-
-% options = odeset('Events', @y1_glide);
-% chat = @(t,y) funglide(t,y,DESIGN,ii);
-% [t,y,te,ye,ei] = ode15s(chat, [0 100], [ye(1,1);ye(1,2);abs(ye(1,3)); 0], options); % need to impliment theta and Q
-
 ic = [0;ye(1,1);abs(ye(1,2)); 0];
-%[t,y,L_D,ic,te] = sadglide(ic,DESIGN,ii);
-
-% %velo = cell(size(t,1),2);
-% velo(:,1) = sqrt(y(:,3).^2+y(:,4).^2);
-% %t = zeros(size(velo,1),1);
-% glide(:,:,ii) = {t;y(:,1);y(:,2);velo(:,1)};
-
 clear velo
 
 % Stead state cruise
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [t,y,L_D,cL] = funsteady(ic,DESIGN,ii);
 
 velo(:,1) = sqrt(y(:,3).^2+y(:,4).^2);
@@ -85,26 +46,13 @@ m_name = ['moment', num2str(ii)];
 steady.(m_name) = moment;
 
 clear velo
-
-% CL DESIGN POINT EQUATION ++++++++++++++++++++++++++++++++++++++++++++++++
-
-% cL_glide = sqrt(3.*cD0.*(pi.*DESIGN.e.*DESIGN.AR));
-% V_trim = sqrt(2.*DESIGN.m.*DESIGN.g./(rho.*DESIGN.S(ii)).*sqrt((1/(pi.*DESIGN.e(ii).*DESIGN.AR(ii)))/(3.*CD0)));
-% gamma = atan(CD/CL_glide);
-% Glide for min sink^^
-
-% Landing (Bleed V for safe landing)
-
 end
 
 
 %% Cool Plots
 
-
 free = struct();
-% steady = struct();
 master = struct();
-
 
 for free_ind = 1:size(freevar,3)
     free_mat_ind = cell2mat(freevar(:,:,free_ind));
@@ -252,109 +200,7 @@ ylabel('Altitude (m)');
 title('Moment vs. Altitude');
 grid on;
 
-%  i = 1;
-% for free_ind = 1:size(free,3)
-%     figure(i);
-%     free_mat_ind = cell2mat(free(:,:,free_ind));
-%     t = free_mat_ind(1:size(free_mat_ind,1)/3);
-%     alt = free_mat_ind(size(free_mat_ind,1)/3+1:size(free_mat_ind,1)/3*2);
-%     speed = free_mat_ind(size(free_mat_ind,1)/3*2+1:end);
-%     hold on;
-%     plot(t,alt);
-%     title("alt vs time")
-%     legend();
-%     i = i + 1;
-%     figure(i);
-%     hold on;
-%     plot(speed,alt);
-%     title("alt vs speed")
-%     legend();
-%     i = i - 1;
-% end
-% % for pull_ind = 1:size(pull,3)
-% %     figure(i);
-% %     pull_mat_ind = cell2mat(pull(:,:,pull_ind));
-% %     t = pull_mat_ind(1:size(pull_mat_ind,1)/5);
-% %     x = pull_mat_ind(size(pull_mat_ind,1)/5+1:size(pull_mat_ind,1)/5*2);
-% %     alt = pull_mat_ind(size(pull_mat_ind,1)/5*2+1:size(pull_mat_ind,1)/5*3);
-% %     speed = pull_mat_ind(size(pull_mat_ind,1)/5*3+1:size(pull_mat_ind,1)/5*4);
-% %     hold on;
-% %     plot(t+pull_inip(pull_ind),alt);
-% %     title("alt vs time")
-% %     legend();
-% %     i = i + 1;
-% %     figure(i);
-% %     hold on;
-% %     plot(speed,alt);
-% %     title("alt vs speed")
-% %     legend();
-% %     i = i + 1;
-% %     figure(i);
-% %     hold on;
-% %     plot(x,alt);
-% %     title("alt vs x-dist")
-% %     legend();
-% %     i = i - 2;
-% % end
-% % for glide_ind = 1:size(glide,3)
-% %     figure(i);
-% %     glide_mat_ind = cell2mat(glide(:,:,glide_ind));
-% %     t = glide_mat_ind(1:size(glide_mat_ind,1)/4);
-% %     x = glide_mat_ind(size(glide_mat_ind,1)/4+1:size(glide_mat_ind,1)/4*2);
-% %     alt = glide_mat_ind(size(glide_mat_ind,1)/4*2+1:size(glide_mat_ind,1)/4*3);
-% %     speed = glide_mat_ind(size(glide_mat_ind,1)/4*3+1:end);
-% %     hold on;
-% %     plot(t+glide_inip(glide_ind),alt);
-% %     title("alt vs time")
-% %     legend();
-% %     i = i + 1;
-% %     figure(i);
-% %     hold on;
-% %     plot(speed,alt);
-% %     title("alt vs speed")
-% %     legend();
-% %     i = i + 1;
-% %     figure(i);
-% %     hold on;
-% %     plot(x,alt);
-% %     title("alt vs x-dist")
-% %     legend();
-% %     i = i - 2;
-% % end
-% for steady_ind = 1:size(steady,3)
-%     figure(i);
-%     steady_mat_ind = cell2mat(steady(:,:,steady_ind));
-%     t = steady_mat_ind(1:size(steady_mat_ind,1)/4);
-%     x = steady_mat_ind(size(steady_mat_ind,1)/4+1:size(steady_mat_ind,1)/4*2);
-%     alt = steady_mat_ind(size(steady_mat_ind,1)/4*2+1:size(steady_mat_ind,1)/4*3);
-%     speed = steady_mat_ind(size(steady_mat_ind,1)/4*3+1:end);
-%     hold on;
-%     plot(t+steady_inip(steady_ind),alt);
-%     title("alt vs time")
-%     legend();
-%     i = i + 1;
-%     figure(i);
-%     hold on;
-%     plot(speed,alt);
-%     title("alt vs speed")
-%     legend();
-%     i = i + 1;
-%     figure(i);
-%     hold on;
-%     plot(x,alt);
-%     title("alt vs x-dist")
-%     legend();
-%     i = i - 2;
-% end
-
-
-% Plotting tools
-% plot(free(:,1,:),free(:,1,:))
-
-
-
 %% Functions for simulations
-
 
 % Freefall section ode ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -393,13 +239,9 @@ function [position,isterminal,direction] = y1_free(t,y)
     direction = 0;   % The zero can be approached from either direction
 end
 
-
-
 % Pullout section ode ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 function dydt = funpull(t,y,DESIGN,ii)
-
-
 
 % Get atmospheric properties at current height
     [T, a, P, rho, nu, mu] = atmosisa(y(2), 'extended', true);
@@ -416,7 +258,6 @@ function dydt = funpull(t,y,DESIGN,ii)
     else
         cL = -0.5;
     end
-   
     
 [cD0,cDi] = drag(Re,cL,DESIGN,ii);
 cD = cD0 + cDi;
@@ -442,124 +283,6 @@ function [position,isterminal,direction] = y1_pull(t,y)
     isterminal = 1;  % Halt integration 
     direction = 0;   % The zero can be approached from either direction
 end
-
-%+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-% function [t,y,L_D] = sadglide(ic,DESIGN,ii)
-% 
-% 
-% dh = 1000;
-% ind = round(ic(2)/dh);
-% y = zeros(ind,4);
-% 
-% for jj  = 1:ind
-%     [T, a, P, rho, nu, mu] = atmosisa(y(jj,2), 'extended', true);
-% 
-%     if jj == 1
-%         V = sqrt(ic(3)^2+ic(4)^2);
-%     else
-%         V = sqrt(y(jj-1,3)^2+y(jj-1,4)^2);
-%     end
-%     W = DESIGN.m.*DESIGN.g;
-%     gamma = -4.*pi/180;
-% 
-%     Re = rho.*DESIGN.c.*V./mu;
-% 
-% y(jj,5) = (rho.*V^2.*DESIGN.S(ii));
-% cL = 2.*W.*cos(gamma)./y(jj,5);
-% [cD0,cDi] = drag(Re,cL,DESIGN,ii);
-% cD = cD0 + cDi;
-% 
-% L_D(1,jj) = cL/cD;
-% dx(1,jj) = dh.*L_D(1,jj);
-% 
-% if jj == 1
-%     y(jj,1) = dx(1,jj);
-%     y(jj,2) = ic(2);
-% else
-% y(jj,1) = y(jj-1,1) + dx(1,jj);
-% y(jj,2) = ic(2) - jj*dh;
-% end
-% 
-% t(jj,1) = V.*sqrt(dx(1,jj)^2+dh^2);
-% 
-% if jj == 1
-%     y(jj,3) = ic(3);
-%     y(jj,4) = ic(4);
-% else
-% y(jj,3) = y(jj-1,3) / dx(1,jj);
-% y(jj,4) = y(jj-1,4) / dh;
-% end
-% 
-% % V(jj,1) = 
-% 
-% 
-% end
-% end
-
-% function [t,y,L_D] = sadglide(ic,DESIGN,ii)
-%     %dh = 1000;
-%     %ind = round(ic(2)/dh);
-%     y = zeros(1000,4);  % Initialize result matrix
-% 
-%     % Define time step (dt) for velocity update
-%     dt = 0.1;  % Time step (adjust if needed)
-% 
-%     alt = ic(1);
-% 
-%     for jj = 1:1000
-%         [T, a, P, rho, nu, mu] = atmosisa(alt, 'extended', true);
-% 
-%         % Initial velocity
-%         if jj == 1
-%             V = sqrt(ic(3)^2 + ic(4)^2);
-%         else
-%             V = sqrt(y(jj-1,3)^2 + y(jj-1,4)^2);
-%         end
-%         dh = y(ii,4).*dt;
-%         W = DESIGN.m * DESIGN.g;
-%         gamma = -4 * pi / 180;  % Glide angle
-% 
-%         Re = rho * DESIGN.c * V / mu;  % Reynolds number
-% 
-%         denom = (rho * V^2 * DESIGN.S(ii));  % Dynamic pressure * S
-%         cL = 2 * W * cos(gamma) / denom;  % Lift coefficient
-%         [cD0, cDi] = drag(Re, cL, DESIGN, ii);  % Drag coefficients
-%         cD = cD0 + cDi;  % Total drag coefficient
-% 
-%         L_D(1,jj) = cL / cD;
-%         dx(1,jj) = dh * L_D(1,jj);
-% 
-%         if jj == 1
-%             y(jj,1) = dx(1,jj);  % Horizontal position
-%             y(jj,2) = ic(2);  % Vertical position
-%         else
-%             y(jj,1) = y(jj-1,1) + dx(1,jj);  % Update horizontal position
-%             y(jj,2) = y(jj-1,2) - dh;  % Update vertical position
-%         end
-% 
-%         alt = y(jj,2);
-%         % Update velocity based on aerodynamic forces
-%         D = 0.5 * rho * V^2 * DESIGN.S(ii) * cD;  % Drag force
-%         L = 0.5 * rho * V^2 * DESIGN.S(ii) * cL;  % Lift force
-% 
-%         % Accelerations
-%         ax = -D * cos(gamma) / DESIGN.m;  % Horizontal acceleration
-%         ay = -W + L * sin(gamma) / DESIGN.m;  % Vertical acceleration
-% 
-%         % Update velocities
-%         if jj == 1
-%             y(jj,3) = ic(3);  % Initial horizontal velocity
-%             y(jj,4) = ic(4);  % Initial vertical velocity
-%         else
-%             y(jj,3) = y(jj-1,3) + ax * dt;  % Horizontal velocity update
-%             y(jj,4) = y(jj-1,4) + ay * dt;  % Vertical velocity update
-%         end
-% 
-%         % Time step (optional for display)
-%         t(jj,1) = V * sqrt(dx(1,jj)^2 + dh^2);  % Time step calculation (you can adjust this if needed)
-%     end
-% end
 
 function [t,y,L_D,ic,te,cL] = sadglide(ic,DESIGN,ii)
 % Aircraft parameters
@@ -607,8 +330,6 @@ function [t,y,L_D,ic,te,cL] = sadglide(ic,DESIGN,ii)
         % Calculate the current lift (L) and drag (D) forces
         alpha = atan(W / (0.5 * rho * V_current^2 * DESIGN.S(ii) * C_L0));  % Initial alpha calculation
         
-        % Calculate CL using current angle of attack
-        % C_L = C_L0 + DESIGN.cLalpha(ii) * alpha
         C_L = W / (0.5 * rho * V_current^2 * DESIGN.S(ii));
         
         % Ensure CL stays within reasonable limits (0.5 < CL < 2.5)
@@ -629,9 +350,6 @@ function [t,y,L_D,ic,te,cL] = sadglide(ic,DESIGN,ii)
 
         % Calculate glide path angle (gamma) for current L and D
         gamma = D / L;  % Glide path angle (radians)
-        
-        % Angle of attack is approximately equal to the glide path angle
-        % alpha = gamma;
         
         % Velocity slip into x and y components for distance
         V_Cx = V_current.*cos(gamma);
@@ -676,53 +394,6 @@ function [t,y,L_D,ic,te,cL] = sadglide(ic,DESIGN,ii)
     ic = [y(iter,1), y(iter,2), y(iter,3), y(iter,4)];
     te = t(iter);
 end
-
-
-%+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-% function dydt = funglide(t,y,DESIGN,ii)
-% 
-% % Get atmospheric properties at current height
-%     [T, a, P, rho, nu, mu] = atmosisa(y(1), 'extended', true);
-% 
-%     V = sqrt(y(3)^2+y(4)^2)
-%     % Drag Buildup for changing Re and flight condition
-%     Re = rho.*DESIGN.c.*V./mu;
-% 
-% 
-%     W = DESIGN.m.*DESIGN.g;
-% 
-%     gamma = -4.*pi/180;
-% 
-% cL = 2.*W.*cos(gamma)./(rho.*DESIGN.S(ii).*V^2);
-% [cD0W,cDiW] = drag(Re,cL,DESIGN,ii);
-% 
-% cLH = DESIGN.S(ii).*cL.*DESIGN.M_arm/(DESIGN.SH.*DESIGN.M_armH);
-% [cD0H,cDiH] = drag(Re,cLH,DESIGN,ii);
-% 
-% 
-% % V_trim_g = sqrt(2.*DESIGN.m.*DESIGN.g./(rho.*DESIGN.S(ii)).*sqrt((1/(pi.*DESIGN.e(ii).*DESIGN.AR(ii)))/(3.*cD0)));
-% % cLW = sqrt(3.*cD0.*(pi.*DESIGN.e.*DESIGN.AR));
-% 
-% % x_velo = velo.*cos(gamma);
-% % y_velo = velo.*sin(gamma);
-% 
-% 
-% cD = cD0W + cDiW + cD0H + cDiH
-% drag_force = 0.5 .* rho .* V^2 .* DESIGN.S(ii) .* cD;
-% lift_force = 0.5 .* rho .* V^2 .* DESIGN.S(ii) .* cL;
-% %V_trim_g = sqrt(2.*DESIGN.m.*DESIGN.g./(rho.*DESIGN.S(ii)).*sqrt((1/(pi.*DESIGN.e(ii).*DESIGN.AR(ii)))/(3.*cD0)));
-% 
-% 
-% 
-% x_accel = -drag_force.*cos(gamma)/DESIGN.m - lift_force.*sin(gamma)/DESIGN.m;
-% y_accel =  -drag_force.*sin(gamma)/DESIGN.m + lift_force.*cos(gamma)/DESIGN.m - DESIGN.g;
-% 
-% dydt = [y(3); y(4); -drag_force.*cos(gamma)/DESIGN.m - lift_force.*sin(gamma)/DESIGN.m; -drag_force.*sin(gamma)/DESIGN.m + lift_force.*cos(gamma)/DESIGN.m - DESIGN.g];
-% % Glide for min sink^^
-% 
-% end
-
 
 function [position,isterminal,direction] = y1_glide(t,y)
     position = y(2); % The value that we want to be zero (altitude)
@@ -784,11 +455,4 @@ while alt > 1700 % && iter < max_iter
     alt = y(iter,2);
 end
  
-% if iter >= max_iter
-%         warning('funsteady: Max iterations reached, check logic.');
-% 
-% end
-
 end
-
-

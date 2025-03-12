@@ -23,7 +23,6 @@ function [DESIGN] = configuration(config)
 
 if config == 1
     % Geometry assumptions for Blended Wing Body
-
     DESIGN.m = 6;
     DESIGN.c = 1.2; % Set number
     DESIGN.b = 0.45;
@@ -73,11 +72,7 @@ elseif config == 3
     DESIGN.AR = DESIGN.b.^2 ./ DESIGN.S; % Aspect Ratio
     DESIGN.e = 0.4;     % Oswald Efficiency Factor
     DESIGN.cLalpha = (180/pi * 0.01);
-    % DESIGN.cLalpha = 180/pi * 0.01; % Lift Curve Slope
     DESIGN.S_ratio = 2.5;
-    %DESIGN.M_arm = 0.1;   % Center of Lift Moment Arm from CG (m)
-    %DESIGN.V_des = -200;  % Desired Pull-Up Trim Speed (m/s)
-    % DESIGN = [1, 2, 3]; % All assumptions make an array
 end
      DESIGN.g = 9.81;
     % Airbrake properties
