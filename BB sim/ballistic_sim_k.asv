@@ -380,7 +380,7 @@ function [dydt,moment] = funfree(t,y,DESIGN,ii)
 
     % Calculate the drag force and acceleration due to gravity
     % Drag force (assumes velocity is y(2))
-    dydt = [y(2); -DESIGN.g + (drag_force+3*D_airbrake*sin(pi/4)^2) ./ DESIGN.m]; % [dy/dt, dv/dt]
+    dydt = [y(2); -DESIGN.g + 3*drag_force ./ DESIGN.m]; % [dy/dt, dv/dt]
 end
 
 function [position,isterminal,direction] = y1_free(t,y)
@@ -388,7 +388,7 @@ function [position,isterminal,direction] = y1_free(t,y)
 
 % position = y(2) + 200; % The value that we want to be zero (speed)
     q_current = 0.5 * rho * y(2)^2;
-    position = q_current - 10; % Stop when q = 1700 Pa
+    position = q_current - 5000; % Stop when q = 1700 Pa
     isterminal = 1;  % Halt integration 
     direction = 0;   % The zero can be approached from either direction
 end
