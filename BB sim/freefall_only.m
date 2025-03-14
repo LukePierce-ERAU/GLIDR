@@ -22,11 +22,19 @@ place_free = @(t,y) funfree(t,y,DESIGN,ii);
 [t,y,te,ye,ei] = ode45(place_free, [0 10000], [36000;0], options); % need to impliment aoa for linear region
 
 for k = 1:numel(t)
-    [~,moment(k,:)] = place_free(t(k),y(k,:));
+    [~,moment(k,:),q(k,:),Re(k,:)] = place_free(t(k),y(k,:));
+    % [~,q(k,:)] = place_free(t(k),y(k,:));
+
 end
 
 m_name = ['moment', num2str(ii)];
 master.(m_name) = moment;
+
+q_name = ['q', num2str(ii)];
+master.(q_name) = q;
+
+Re_name = ['Re', num2str(ii)];
+master.(Re_name) = Re;
 
 freevar(:,:,ii) = {t;y(:,1);abs(y(:,2))};
 free_out(:,:,ii) = [te,ye,ei];
@@ -97,25 +105,43 @@ ylabel('Altitude [km]','FontSize',16)
 %% Figure: Airbreak moment vs. Altitude
 figure;
 plot(master.moment1, master.alt1, 'b', 'LineWidth', 2);
-set(gca, 'YDir', 'reverse'); % Altitude decreases downward
 xlabel('Moment','FontSize', 16);
 ylabel('Altitude (m)','FontSize' ,16);
 title('Moment vs. Altitude', 'FontSize',18);
+grid on;
+
+%% Figure: Airbreak moment vs. Altitude
+figure;
+plot(master.q1, master.alt1, 'b', 'LineWidth', 2);
+xlabel('Dynamic Pressure','FontSize', 16);
+ylabel('Altitude (m)','FontSize' ,16);
+title('Dynamic Pressure vs. Altitude', 'FontSize',18);
+grid on;
+
+%% Figure: Reynolds Number vs. Altitude
+figure;
+plot(master.Re1, master.alt1, 'b', 'LineWidth', 2);
+xlabel('Reynolds Number','FontSize', 16);
+ylabel('Altitude (m)','FontSize' ,16);
+title('Reynolds Number vs. Altitude', 'FontSize',18);
 grid on;
 
 %% Functions for simulations
 
 % Freefall section ode ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-function [dydt,moment] = funfree(t,y,DESIGN,ii)
+function [dydt,moment,q_save,Re_save] = funfree(t,y,DESIGN,ii)
 
 % Get atmospheric properties at current height
     [T, a, P, rho, nu, mu] = atmosisa(y(1), 'extended', true);
 
     q = 0.5 * rho * y(2)^2; % Dynamic pressure
-    
+    q_save(numel(t),1) = q;
+
     % Drag Buildup for changing Re and flight condition
     Re = rho.*DESIGN.c.*abs(y(2))./mu;
+    Re_save(numel(t),1) = Re;
+
     cL = 0;
     [cD0,cDi] = drag(Re,cL,DESIGN,ii);
     cD = cD0 + cDi;
@@ -139,170 +165,6 @@ function [position,isterminal,direction] = y1_free(t,y)
     % position = q_current - 10; % Stop when q = 1700 Pa
     target_altitude = 1700;
     position = y(1) - target_altitude ;
-    isterminal = 1;  % Halt integration 
-    direction = 0;   % The zero can be approached from either direction
-end
-
-% Pullout section ode ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-function dydt = funpull(t,y,DESIGN,ii)
-
-
-
-% Get atmospheric properties at current height
-    [T, a, P, rho, nu, mu] = atmosisa(y(2), 'extended', true);
-
-    % Drag Buildup for changing Re and flight condition
-    Re = rho.*DESIGN.c.*abs(y(3))./mu;
-
-    % TO BE FURTHER EVALUATED++++++++++++++++++++++++++++++++++++++++
-    % Estimation based on flaps to to create negative lift 
-    global pull_init
-
-    if t == pull_init
-        cL = 0;
-    else
-        cL = -0.5;
-    end
-   
-    
-[cD0,cDi] = drag(Re,cL,DESIGN,ii);
-cD = cD0 + cDi;
-    
-drag_force = 0.5 .* rho .* y(3)^2 .* DESIGN.S(ii) .* cD;
-lift_force = 0.5 .* rho .* y(3)^2 .* DESIGN.S(ii) .* cL;
-
-Q = ( .5*rho*(y(3)^2)*cL*(DESIGN.S(ii)/DESIGN.m) - DESIGN.g*cos(y(4)) )/y(3);
-    
- % Calculate the drag force and acceleration due to gravity
-     % Drag force (assumes velocity is y(2))
-    dydt = [abs(y(3)).*cos(y(4)); abs(y(3)).*sin(y(4)); DESIGN.g.*sin(y(4))-drag_force/DESIGN.m; Q]; % [dx/dt, dy/dt, dv/dt, dtheta/dt]
-end
-
-function [position,isterminal,direction] = y1_pull(t,y)
-    position = y(4); % The value that we want to be zero (theta)
-    isterminal = 1;  % Halt integration 
-    direction = 0;   % The zero can be approached from either direction
-end
-
-function [t,y,L_D,ic,te,cL] = sadglide(ic,DESIGN,ii)
-% Aircraft parameters
-
-    C_L0 = 0.3;              % Lift coefficient at zero angle of attack (dimensionless)
-             % Parasitic drag coefficient (dimensionless)
-    k = 1/(DESIGN.e(ii)*pi*DESIGN.AR(ii));                % Induced drag factor (dimensionless)
-
-    g = 9.81;                % Gravitational acceleration (m/s²)
-    
-    % Flight conditions (inputs)
-    alt = ic(2);         % Altitude (m)
-    [T, a, P, rho, nu, mu] = atmosisa(alt, 'extended', true);
-
-    % Drag Buildup for changing Re and flight condition
-    Re = rho.*DESIGN.c.*abs(ic(3))./mu;
-    cD0 = drag(Re,0,DESIGN,ii);
-
-    % Compute weight
-    W = DESIGN.m * DESIGN.g;               % Weight of the aircraft (N)
-    
-    % Stall angle (radians) (stall angle assumed for typical subsonic aircraft)
-    stall_angle = deg2rad(15);  
-    
-    % Target glide velocity (optimal velocity determined earlier)
-    % Assuming the optimized value was calculated previously
-    target_velocity = sqrt((2 * W) / (rho * DESIGN.S(ii) * C_L0));     % Example target velocity in m/s (can be calculated from previous results)
-    
-    % Initial condition: Aircraft starts with a higher glide velocity
-    V_current = abs(ic(3));           % Higher initial glide velocity (m/s)
-    tolerance = 0.01;         % Convergence tolerance for velocity
-    xdistance_traveled = 0;    % Distance traveled (m)
-    ydistance_traveled = 0;
-    
-    % Define lift coefficient limits (realistic values)
-    CL_max = 2.5;             % Maximum CL (typically around this for subsonic aircraft with flaps)
-    CL_min = 0.1;             % Minimum CL (reasonable lower bound)
-
-    % Iterate until the velocity is trimmed to the target
-    iter = 0;
-    while abs(V_current - target_velocity) > tolerance
-        % Calculate dynamic lift coefficient (CL) based on AoA and flap settings
-        % Here AoA is replaced by glide path angle (gamma), which will control the desired CL
-        
-        % Calculate the current lift (L) and drag (D) forces
-        alpha = atan(W / (0.5 * rho * V_current^2 * DESIGN.S(ii) * C_L0));  % Initial alpha calculation
-        
-        % Calculate CL using current angle of attack
-        % C_L = C_L0 + DESIGN.cLalpha(ii) * alpha
-        C_L = W / (0.5 * rho * V_current^2 * DESIGN.S(ii));
-        
-        % Ensure CL stays within reasonable limits (0.5 < CL < 2.5)
-        if C_L > CL_max
-            C_L = CL_max;
-        elseif C_L < CL_min
-            C_L = CL_min;
-        end
-        
-        % Induced drag model (quadratic relation to lift coefficient)
-        C_D = cD0 + k * C_L^2;
-        
-        % Calculate steady glide conditions
-        L = 0.5 * rho * V_current^2 * C_L * DESIGN.S(ii);  % Lift force (N)
-        D = 0.5 * rho * V_current^2 * C_D * DESIGN.S(ii) * DESIGN.S_ratio;  % Drag force (N)
-        
-% INSTEAD BLEEDING SPEED AT A CONSTANT ALT================================
-
-        % Calculate glide path angle (gamma) for current L and D
-        gamma = D / L;  % Glide path angle (radians)
-        
-        % Angle of attack is approximately equal to the glide path angle
-        % alpha = gamma;
-        
-        % Velocity slip into x and y components for distance
-        V_Cx = V_current.*cos(gamma);
-        V_Cy = V_current.*sin(gamma);
-        V_Cy = 0;
-        % Calculate distance traveled and altitude lost during this step
-        xdistance_traveled = + V_Cx * 1;  % Assume each iteration is 1 second
-        ydistance_traveled = + V_Cy * 1;  % Assume each iteration is 1 second
-
-        % Apply drag force to reduce velocity
-        V_new = V_current - D / DESIGN.m * 1;  % Apply drag force to reduce speed (assume 1 second steps)
-        
-        % Update current velocity and ensure it stays above the target
-        V_current = max(V_new, target_velocity);
-        
-        % Prevent angle of attack from reaching stall (ensure alpha does not exceed stall angle)
-        if alpha > stall_angle
-            alpha = stall_angle;
-        end
-        
-        % Increment iteration count and saving needed parameters
-        iter = iter + 1;
-        if iter == 1
-        L_D(iter,1) = L/D; 
-        y(iter,1) = ic(1);
-        y(iter,2) = alt;
-        y(iter,3) = ic(3);
-        y(iter,4) = V_Cy;
-        t(iter,1) = iter;
-        cL(iter,1) = C_L;
-        else
-        L_D(iter,1) = L/D; 
-        y(iter,1) = y(iter-1,1) + xdistance_traveled;
-        y(iter,2) = y(iter-1,2) - ydistance_traveled;
-        y(iter,3) = V_Cx;
-        y(iter,4) = V_Cy;
-        t(iter,1) = iter;
-        cL(iter,1) = C_L;
-    end
-    end
-
-    ic = [y(iter,1), y(iter,2), y(iter,3), y(iter,4)];
-    te = t(iter);
-end
-
-function [position,isterminal,direction] = y1_glide(t,y)
-    position = y(2); % The value that we want to be zero (altitude)
     isterminal = 1;  % Halt integration 
     direction = 0;   % The zero can be approached from either direction
 end
