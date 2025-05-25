@@ -1,0 +1,117 @@
+Flat area 1.89 m2
+AR 7
+Wingspan 3.63 m
+
+Projected area 1.57 m2
+Projected AR 5.18
+Projected wingspan 2.85 ì
+
+Angle at wingtip 119.09 deg
+Average bridle angle 90.68 deg
+
+Num of cells 13
+Sell width 30.75 cm
+Root chord 0.63 m
+Wingtip chord 0.2 m
+Bridles height 2.44 m
+
+
+Sum line length 45.74 m
+With rib countours 68.78 m
+All, except upper cascade 52.94 m
+
+Lower cascade 7.62 m (with countours 9.54 m)
+Mid cascade 15.82 m (with countours 21.1 m)
+Upper cascade 22.3 m (with countours 38.14 m)
+Upper cascade from continues cord 26.28 m (only countours 3.98 m)
+
+Angle at center -1.31 deg
+Angle at wingtips 4.54 deg
+Center of Pressure 31% on mean chord is equal 32.53% on center chord
+Anchor points pos, % chord [0.31,27,50,80]
+
+
+Plastic rods length
+By ribs, index from center.
+
+1: 15.7 cm
+2: 15 cm
+3: 14.1 cm
+4: 12.8 cm
+5: 11.2 cm
+6: 8.8 cm
+7: 4.6 cm
+
+Sum plastic rods length 1.64 m
+
+
+Bridles
+Index from center, in parentheses length with knots (one knot length 12 cm),
+in square parentheses(if shown) length to upper panel across rib triangles.
+
+Front riser
+
+A
+1: 85.1 cm (109.1 cm)
+	1: 67.5 cm (91.5 cm)
+		1: 48.3 cm (72.3 cm) [48.3 cm]
+		2: 32.8 cm (56.8 cm) [32.8 cm]
+		3: 35 cm (59 cm) [35 cm]
+	2: 59.7 cm (83.7 cm)
+		1: 37.8 cm (61.8 cm) [37.8 cm]
+		2: 30.6 cm (54.6 cm) [30.6 cm]
+		3: 36 cm (60 cm) [36 cm]
+
+B
+1: 89 cm (113 cm)
+	1: 71.6 cm (95.6 cm)
+		1: 44.2 cm (68.2 cm) [51 cm]
+		2: 28.2 cm (52.2 cm) [34.9 cm]
+		3: 30.1 cm (54.1 cm) [36.4 cm]
+	2: 61.6 cm (85.6 cm)
+		1: 34.5 cm (58.5 cm) [40.4 cm]
+		2: 26.6 cm (50.6 cm) [31.8 cm]
+		3: 32.8 cm (56.8 cm) [36.9 cm]
+
+Rear riser
+
+CD
+1: 88 cm (112 cm)
+	C
+	1: 71.9 cm (95.9 cm)
+		1: 45.3 cm (69.3 cm) [51 cm]
+		2: 29.5 cm (53.5 cm) [35 cm]
+		3: 31.3 cm (55.3 cm) [36.5 cm]
+	2: 61.8 cm (85.8 cm)
+		1: 35.6 cm (59.6 cm) [40.4 cm]
+		2: 27.5 cm (51.5 cm) [31.8 cm]
+		3: 33.3 cm (57.3 cm) [36.7 cm]
+	D
+	1: 70.3 cm (94.3 cm)
+		1: 45.7 cm (69.7 cm) [50.1 cm]
+		2: 29.9 cm (53.9 cm) [34.2 cm]
+		3: 31.5 cm (55.5 cm) [35.7 cm]
+	2: 60.2 cm (84.2 cm)
+		1: 35.6 cm (59.6 cm) [39.5 cm]
+		2: 27.6 cm (51.6 cm) [31 cm]
+		3: 32.9 cm (56.9 cm) [35.6 cm]
+
+Wingtip line
+
+1: 119.1 cm (143.1 cm)
+	1: 33.1 cm (57.1 cm)
+	2: 32.6 cm (56.6 cm)
+	3: 32.6 cm (56.6 cm)
+	4: 32.7 cm (56.7 cm)
+
+Brakes
+
+1: 118.7 cm (142.7 cm)
+	1: 80.6 cm (104.6 cm)
+		1: 49.9 cm (73.9 cm)
+		2: 31.9 cm (55.9 cm)
+		3: 25.7 cm (49.7 cm)
+		4: 35.3 cm (59.3 cm)
+	2: 66.9 cm (90.9 cm)
+		1: 18.9 cm (42.9 cm)
+
