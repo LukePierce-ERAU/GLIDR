@@ -68,7 +68,7 @@ elseif config == 2
 elseif config == 3
     % Geometry assumptions for Bullet Bill
     DESIGN.m = 5;      % Mass (kg)
-    DESIGN.S = linspace(0.5, 2, 10);
+    DESIGN.S = linspace(2, 5, 10);
     DESIGN.c = 1.2;      % Chord Length (m)
     DESIGN.b = 0.45;     % Wingspan (m)
     DESIGN.AR = DESIGN.b.^2 ./ DESIGN.S; % Aspect Ratio
@@ -90,7 +90,7 @@ end
     % Compute arc length per airbrake
     theta_airbrake = (2 * pi) / num_airbrakes; % Radians
     arc_length_airbrake = theta_airbrake * fuselage_radius;
-    DESIGN.c_airbrake = 0.6844;
+    DESIGN.c_airbrake = 0.26;
 
     % Compute airbrake area
     DESIGN.S_airbrake = DESIGN.c_airbrake * airbrake_length;

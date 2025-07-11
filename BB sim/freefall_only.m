@@ -112,9 +112,9 @@ grid on;
 
 %% Figure: Airbreak moment vs. Altitude
 figure;
-plot(master.q1, master.alt1, 'b', 'LineWidth', 2);
-xlabel('Dynamic Pressure','FontSize', 16);
-ylabel('Altitude (m)','FontSize' ,16);
+plot(master.q1, master.alt1/1000, 'b', 'LineWidth', 2);
+xlabel('Dynamic Pressure (MPa)','FontSize', 16);
+ylabel('Altitude (km)','FontSize' ,16);
 title('Dynamic Pressure vs. Altitude', 'FontSize',18);
 grid on;
 
