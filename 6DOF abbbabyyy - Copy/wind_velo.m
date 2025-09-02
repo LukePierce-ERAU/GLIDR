@@ -9,5 +9,4 @@ wind_v = interp1(alt_data, wind_data, alt, 'linear', 'extrap');
 [~, idx] = min(abs(alt_data - alt));
 wind_dir = dir_data(idx,:);
 end
-alt = 1000;
-[wind_v, wind_dir]=wind(alt);
+
