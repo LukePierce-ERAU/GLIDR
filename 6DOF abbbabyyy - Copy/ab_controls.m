@@ -2,7 +2,7 @@ function [delta_ab] = ab_controls(DESIGN,psi)
 %UNTITLED Summary of this function goes here
 %   Proportional Controls for Airbrake controls
 
-K_ab = 1.5; % Gain value
+K_ab = 0.1; % Gain value
 
 error = DESIGN.target_psi - psi;
 
